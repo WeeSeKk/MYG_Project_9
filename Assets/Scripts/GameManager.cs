@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
@@ -34,7 +35,6 @@ public class GameManager : MonoBehaviour
 
     public void ResetGame()
     {
-        Time.timeScale = 1;
         score = 0;
 
         for (int i = 0; i < obstParent.childCount; i ++)
@@ -49,6 +49,9 @@ public class GameManager : MonoBehaviour
         player.transform.position = new Vector3(0,0,0);
         player.transform.rotation = new Quaternion(0,0,0,0);
 
+        Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
+        playerRigidbody.useGravity = true;
+
         EventManager.ResetGame();
     }
 
@@ -60,6 +63,8 @@ public class GameManager : MonoBehaviour
 
     void GameOver()
     {
-        Time.timeScale = 0;
+        Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
+        playerRigidbody.useGravity = false;
+        DOTween.Clear();
     }
 }

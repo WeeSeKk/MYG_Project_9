@@ -33,7 +33,6 @@ public class EventManager : MonoBehaviour
     public static void ScroreUP()
     {
         scroreUP?.Invoke();
-        Debug.Log("+ 1 Point");
     }
 
     public static void ResetGame()

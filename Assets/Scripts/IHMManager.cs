@@ -22,7 +22,7 @@ public class IHMManager : MonoBehaviour
     void Start()
     {
         EventManager.gameOver += GameOverScreen;
-        EventManager.resetGame += GameOverScreen;
+        EventManager.resetGame += ResetGame;
     }
 
     // Update is called once per frame
@@ -33,11 +33,11 @@ public class IHMManager : MonoBehaviour
 
     void GameOverScreen()
     {
-        if (gameOverScreenUI.activeSelf == false) {
-            gameOverScreenUI.SetActive(true);
-        }
-        else {
-            gameOverScreenUI.SetActive(false);
-        }
+        gameOverScreenUI.SetActive(true);
+    }
+
+    void ResetGame()
+    {
+        gameOverScreenUI.SetActive(false);
     }
 }

@@ -4,17 +4,19 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] Rigidbody _rigidbody;
     public float jumpForce;
-
+    bool gameOver;
     
     void Start()
     {
         EventManager.resetGame += ResetVelocity;
+        EventManager.gameOver += GameOver;
+        EventManager.resetGame += ResetGame;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown("space"))
+        if (Input.GetKeyDown("space") && !gameOver)
         {
             _rigidbody.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
@@ -32,5 +34,15 @@ public class PlayerManager : MonoBehaviour
     {
         _rigidbody.linearVelocity = Vector2.zero;
         Debug.Log("reset velocity");
+    }
+
+    void GameOver()
+    {
+        gameOver = true;
+    }
+
+    void ResetGame()
+    {
+        gameOver = false;
     }
 }
