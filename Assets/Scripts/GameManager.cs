@@ -34,9 +34,10 @@ public class GameManager : MonoBehaviour
 
     public void ResetGame()
     {
+        Time.timeScale = 1;
         score = 0;
 
-        for (int i = 0; i == obstParent.childCount; i ++)
+        for (int i = 0; i < obstParent.childCount; i ++)
         {
             GameObject child = obstParent.GetChild(i).gameObject;
 
@@ -49,7 +50,6 @@ public class GameManager : MonoBehaviour
         player.transform.rotation = new Quaternion(0,0,0,0);
 
         EventManager.ResetGame();
-        Time.timeScale = 1;
     }
 
     void CountScore()

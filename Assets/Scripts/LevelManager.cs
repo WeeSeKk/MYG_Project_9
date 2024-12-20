@@ -6,6 +6,7 @@ public class LevelManager : MonoBehaviour
 {
     [SerializeField] List<GameObject> obstacles;
     [SerializeField] Transform obstParent;
+    [SerializeField] GameObject scoreCollider;
     static readonly Dictionary<GameObject, int> obstcFrequencies = new Dictionary<GameObject, int>();
     bool gameOver;
 
@@ -58,6 +59,12 @@ public class LevelManager : MonoBehaviour
             GameObject newObstcTop = ObjectPool.ObstcSpawn(topObstacle, topPos, toprot);
             newObstcTop.transform.SetParent(obstParent);
 
+            for (int i = 0; i < newObstcTop.transform.childCount; i ++) {
+                if (newObstcTop.transform.GetChild(i).name == "ScoreCollider" && newObstcTop.transform.GetChild(i).gameObject.activeSelf == false) {
+                    newObstcTop.transform.GetChild(i).gameObject.SetActive(true);
+                }
+            }
+
             //if obstc == high reduce chance of another high spawning if low difficulty
 
             GameObject bottomObstacle = GenerateObstc();
@@ -67,6 +74,14 @@ public class LevelManager : MonoBehaviour
 
             GameObject newObstcBottom = ObjectPool.ObstcSpawn(bottomObstacle, bottomPos, bottomrot);
             newObstcBottom.transform.SetParent(obstParent);
+            
+            for (int i = 0; i < newObstcBottom.transform.childCount; i ++) {
+                if (newObstcBottom.transform.GetChild(i).name == "ScoreCollider" && newObstcBottom.transform.GetChild(i).gameObject.activeSelf == true) {
+                    newObstcBottom.transform.GetChild(i).gameObject.SetActive(false);
+                }
+            }
+            
+
 
             yield return new WaitForSeconds(1f);
         }

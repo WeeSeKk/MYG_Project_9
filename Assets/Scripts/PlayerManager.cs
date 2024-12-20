@@ -8,7 +8,7 @@ public class PlayerManager : MonoBehaviour
     
     void Start()
     {
-        
+        EventManager.resetGame += ResetVelocity;
     }
 
     // Update is called once per frame
@@ -16,7 +16,6 @@ public class PlayerManager : MonoBehaviour
     {
         if (Input.GetKeyDown("space"))
         {
-            Debug.Log("JUMP!");
             _rigidbody.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
     }
@@ -27,5 +26,11 @@ public class PlayerManager : MonoBehaviour
             EventManager.GameOver();
             Debug.Log("HIT");
         }
+    }
+
+    void ResetVelocity()
+    {
+        _rigidbody.linearVelocity = Vector2.zero;
+        Debug.Log("reset velocity");
     }
 }

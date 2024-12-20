@@ -869,6 +869,7 @@ MonoBehaviour:
   - {fileID: 5898462198247480406, guid: 487ec10038edb724ca27e5159fe1b93a, type: 3}
   - {fileID: 129941355261142896, guid: 4a1f18f3f76514f45934c14173961879, type: 3}
   obstParent: {fileID: 39548192}
+  scoreCollider: {fileID: 5940303206635468220, guid: de757e6a00ef9434597e98f6cd8618ea, type: 3}
 --- !u!1 &1146518839
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,7 +1051,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!1 &1308202555
 GameObject:
@@ -2110,10 +2111,10 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1823688467}
+  - {fileID: 643838805}
+  - {fileID: 1168118397}
   - {fileID: 2013410475}
   - {fileID: 682879380}
   - {fileID: 1886539508}
   - {fileID: 2069321993}
   - {fileID: 1667400350}
-  - {fileID: 1168118397}
-  - {fileID: 643838805}
