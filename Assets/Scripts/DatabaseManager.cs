@@ -13,7 +13,7 @@ public class DatabaseManager : MonoBehaviour
     IMongoCollection<BsonDocument> _collection;
     MongoClient client;
     IMongoDatabase database;
-    string currentUsername;
+    public string currentUsername;
 
     void Awake()
     {
@@ -72,7 +72,10 @@ public class DatabaseManager : MonoBehaviour
         {
             Debug.Log("User found, login successful!");
             currentUsername = username;
-            //call IHMManager
+            await IHMManager.instance.RequestLeaderboardDatas();
+            await IHMManager.instance.AddCurrentUserOnLeaderboard();
+            IHMManager.instance.ShowLeaderboardDatas("Scores");
+            IHMManager.instance.CloseLobbyUI();
         }
         else
         {
@@ -139,7 +142,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    private async Task CheckUserInLeaderboard(string username)
+    public async Task<BsonDocument> CheckUserInLeaderboard(string username)
     {
         var collection = database.GetCollection<BsonDocument>("Leaderboard");
 
@@ -151,25 +154,25 @@ public class DatabaseManager : MonoBehaviour
 
             if (userDocument != null)
             {
-                int score = userDocument["score"].AsInt32;
-                DateTime date = userDocument["dateofscore"].ToUniversalTime();
-
-                Debug.Log($"User '{username}' exists with a score of: {score} (Date: {date})");
+                return userDocument;
             }
             else
             {
                 Debug.Log($"User '{username}' does not exist in the leaderboard.");
+                return null;
             }
         }
         catch (Exception ex)
         {
             Debug.LogError($"An error occurred: {ex.Message}");
+            return null;
         }
     }
 
-    public async Task<List<BsonDocument>> GetTopScoresAsync(int limit = 10)
+    public async Task<List<BsonDocument>> GetLeaderboardDatas()
     {
         var collection = database.GetCollection<BsonDocument>("Leaderboard");
+        int limit = 10;
 
         try
         {
