@@ -1,15 +1,31 @@
 using MongoDB.Driver;
 using MongoDB.Bson;
 using UnityEngine;
-using MongoDB.Driver.Core.Events;
-using UnityEngine.Networking;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+using BCrypt.Net;
+using BCrypt;
 
 public class DatabaseManager : MonoBehaviour
 {
+    public static DatabaseManager instance;
     IMongoCollection<BsonDocument> _collection;
     MongoClient client;
     IMongoDatabase database;
+    string currentUsername;
+
+    void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            instance = this;
+        }
+    }
 
     void Start()
     {
@@ -20,7 +36,7 @@ public class DatabaseManager : MonoBehaviour
     {
         try
         {
-            string connectionString = "mongodb+srv://weesekk:LSsvQtTDcCgoM2LZ@cluster0.5zx1h.mongodb.net/MYG_Project_9?authMechanism=SCRAM-SHA-1&retryWrites=true&w=majority";
+            string connectionString = "mongodb+srv://weesekk:2zmqnh0FQW74CnPd@cluster0.5zx1h.mongodb.net/MYG_Project_9?authMechanism=SCRAM-SHA-1&retryWrites=true&w=majority";
             client = new MongoClient(connectionString);
             database = client.GetDatabase("MYG_Project_9");
 
@@ -28,62 +44,147 @@ public class DatabaseManager : MonoBehaviour
             database.RunCommand<BsonDocument>(command);
 
             Debug.Log("Connected to MongoDB successfully!");
-
-            //InsertData();
         }
-        catch (System.Exception e)
+        catch (Exception ex)
         {
-            Debug.LogError("Failed to connect to MongoDB: " + e.Message);
+            Debug.LogError("Failed to connect to MongoDB: " + ex.Message);
         }
     }
 
-    void InsertData()
+    public async void OnLogin(string username, string password)
     {
-        if (database == null)
-        {
-            Debug.LogError("Database is not initialized!");
-            return;
-        }
+        var collection = database.GetCollection<BsonDocument>("Users");
 
-        var collection = database.GetCollection<BsonDocument>("Leaderboard");
         if (collection == null)
         {
             Debug.LogError("Collection 'Users' not found!");
             return;
         }
 
-        var document = new BsonDocument
-    {
-        { "player", "TestPlayer" },
-        { "score", 1000 }
-    };
+        var filter = Builders<BsonDocument>.Filter.And(
+            Builders<BsonDocument>.Filter.Eq("username", username),
+            Builders<BsonDocument>.Filter.Eq("password", password)
+        );
 
-        try
+        var user = await collection.Find(filter).FirstOrDefaultAsync();
+
+        if (user != null)
         {
-            collection.InsertOne(document);
-            Debug.Log("Data inserted successfully!");
+            Debug.Log("User found, login successful!");
+            currentUsername = username;
+            //call IHMManager
         }
-        catch (System.Exception ex)
+        else
         {
-            Debug.LogError("Failed to insert data: " + ex.Message);
+            Debug.LogError("Invalid username or password.");
+            //call IHMManager
         }
     }
 
-    private void FetchData()
+    public async void OnRegister(string username, string password)
     {
+        var collection = database.GetCollection<BsonDocument>("Users");
+
+        if (collection == null)
+        {
+            Debug.LogError("Collection 'Users' not found!");
+            return;
+        }
+
+        var filter = Builders<BsonDocument>.Filter.Eq("username", username);
+        var existingUser = await collection.Find(filter).FirstOrDefaultAsync();
+
+        if (existingUser != null)
+        {
+            Debug.LogError("Username is already taken");
+            //call IHMManager
+            return;
+        }
+
+        var newUser = new BsonDocument
+        {
+            { "username", username },
+            { "password", password }
+        };
+
+        await collection.InsertOneAsync(newUser);
+        Debug.Log("User registered successfully!");
+    }
+
+    private async Task AddOrUpdateUserScore(int newScore)
+    {
+        var collection = database.GetCollection<BsonDocument>("Leaderboard");
+
+        var filter = Builders<BsonDocument>.Filter.Eq("username", currentUsername);
+        var update = Builders<BsonDocument>.Update
+            .Set("score", newScore)
+            .Set("dateofscore", DateTime.UtcNow);
+
         try
         {
-            var filter = new BsonDocument();
-            var documents = _collection.Find(filter).ToList();
+            var result = await collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
 
-            foreach (var doc in documents)
+            if (result.MatchedCount > 0)
             {
-                Debug.Log(doc.ToString());
+                Debug.Log($"User '{currentUsername}' score updated to: {newScore}");
+            }
+            else
+            {
+                Debug.Log($"User '{currentUsername}' added with score: {newScore}");
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            Debug.LogError("Failed to fetch data: " + ex.Message);
+            Debug.LogError($"Problem: {ex.Message}");
+        }
+    }
+
+    private async Task CheckUserInLeaderboard(string username)
+    {
+        var collection = database.GetCollection<BsonDocument>("Leaderboard");
+
+        var filter = Builders<BsonDocument>.Filter.Eq("username", username);
+
+        try
+        {
+            var userDocument = await collection.Find(filter).FirstOrDefaultAsync();
+
+            if (userDocument != null)
+            {
+                int score = userDocument["score"].AsInt32;
+                DateTime date = userDocument["dateofscore"].ToUniversalTime();
+
+                Debug.Log($"User '{username}' exists with a score of: {score} (Date: {date})");
+            }
+            else
+            {
+                Debug.Log($"User '{username}' does not exist in the leaderboard.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"An error occurred: {ex.Message}");
+        }
+    }
+
+    public async Task<List<BsonDocument>> GetTopScoresAsync(int limit = 10)
+    {
+        var collection = database.GetCollection<BsonDocument>("Leaderboard");
+
+        try
+        {
+            var sort = Builders<BsonDocument>.Sort.Descending("score");
+            var topScores = await collection
+                .Find(new BsonDocument()) 
+                .Sort(sort)
+                .Limit(limit)
+                .ToListAsync();
+            return topScores;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error fetching top scores: {ex.Message}");
+            return null;
         }
     }
 }

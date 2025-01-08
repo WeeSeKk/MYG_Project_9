@@ -6,7 +6,6 @@ public class LevelManager : MonoBehaviour
 {
     [SerializeField] List<GameObject> obstacles;
     [SerializeField] Transform obstParent;
-    [SerializeField] GameObject scoreCollider;
     static readonly Dictionary<GameObject, int> obstcFrequencies = new Dictionary<GameObject, int>();
     bool gameOver;
 
@@ -15,7 +14,7 @@ public class LevelManager : MonoBehaviour
         EventManager.gameOver += GameOver;
         EventManager.resetGame += ResetGame;
         InitializeObstcFrequencies();
-        StartCoroutine(ObstaclesSpawner());
+        //StartCoroutine(ObstaclesSpawner());
     }
     void InitializeObstcFrequencies()
     {
