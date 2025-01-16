@@ -31,11 +31,6 @@ public class GameManager : MonoBehaviour
         score = 0;
     }
 
-    void Update()
-    {
-
-    }
-
     public void ResetGame(bool reset)
     {
         score = 0;

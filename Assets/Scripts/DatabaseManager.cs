@@ -112,6 +112,7 @@ public class DatabaseManager : MonoBehaviour
 
         await collection.InsertOneAsync(newUser);
         Debug.Log("User registered successfully!");
+        OnLogin(username, password);
     }
 
     private async Task AddOrUpdateUserScore(int newScore)
