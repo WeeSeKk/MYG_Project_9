@@ -6,6 +6,8 @@ public class LevelManager : MonoBehaviour
 {
     [SerializeField] List<GameObject> obstacles;
     [SerializeField] Transform obstParent;
+    [SerializeField] Transform obstSpanwPosBottom;
+    [SerializeField] Transform obstSpanwPosTop;
     static readonly Dictionary<GameObject, int> obstcFrequencies = new Dictionary<GameObject, int>();
     bool gameOver;
 
@@ -14,7 +16,7 @@ public class LevelManager : MonoBehaviour
         EventManager.gameOver += GameOver;
         EventManager.resetGame += ResetGame;
         InitializeObstcFrequencies();
-        //StartCoroutine(ObstaclesSpawner());
+        StartCoroutine(ObstaclesSpawner());
     }
     void InitializeObstcFrequencies()
     {
@@ -52,8 +54,11 @@ public class LevelManager : MonoBehaviour
         {
             GameObject topObstacle = GenerateObstc();
 
-            Vector3 topPos = new Vector3(15, 14, 0);
-            Quaternion toprot = new Quaternion(0, 0, 180, 0);
+            //Vector3 topPos = new Vector3(15, 14, 0);
+            //Quaternion toprot = new Quaternion(0, 0, 180, 0);
+
+            Vector3 topPos = obstSpanwPosTop.position;
+            Quaternion toprot = obstSpanwPosTop.rotation;
 
             GameObject newObstcTop = ObjectPool.ObstcSpawn(topObstacle, topPos, toprot);
             newObstcTop.transform.SetParent(obstParent);
@@ -68,8 +73,11 @@ public class LevelManager : MonoBehaviour
 
             GameObject bottomObstacle = GenerateObstc();
 
-            Vector3 bottomPos = new Vector3(15, -9, 0);
-            Quaternion bottomrot = new Quaternion(0, 0, 0, 0);
+            //Vector3 bottomPos = new Vector3(15, -9, 0);
+            //Quaternion bottomrot = new Quaternion(0, 0, 0, 0);
+
+            Vector3 bottomPos = obstSpanwPosBottom.position;
+            Quaternion bottomrot = obstSpanwPosBottom.rotation;
 
             GameObject newObstcBottom = ObjectPool.ObstcSpawn(bottomObstacle, bottomPos, bottomrot);
             newObstcBottom.transform.SetParent(obstParent);
