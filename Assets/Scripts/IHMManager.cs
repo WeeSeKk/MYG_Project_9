@@ -11,6 +11,7 @@ public class IHMManager : MonoBehaviour
     [SerializeField] GameObject gameOverScreenUI;
     [SerializeField] GameObject lobbyUI;
     [SerializeField] GameObject LeaderboardUI;
+    [SerializeField] GameObject scoreCountGO;
     [SerializeField] TMP_InputField usernameInputField;
     [SerializeField] TMP_InputField passwordInputField;
     [SerializeField] GameObject currentUserScore;
@@ -18,6 +19,7 @@ public class IHMManager : MonoBehaviour
     [SerializeField] Image usernameArrow;
     [SerializeField] Image scoreArrow;
     [SerializeField] Image dateArrow;
+    [SerializeField] TMP_Text scoreCount;
     LeaderboardUserdata leaderboardUserdata = new LeaderboardUserdata();
     public static IHMManager instance;
     bool reverse;
@@ -38,6 +40,23 @@ public class IHMManager : MonoBehaviour
     {
         EventManager.gameOver += GameOverScreen;
         EventManager.resetGame += ResetGame;
+    }
+
+    public void ShowScoreCount()
+    {
+        if (scoreCountGO.activeSelf == false)
+        {
+            scoreCountGO.SetActive(true);
+        }
+        else
+        {
+            scoreCountGO.SetActive(false);
+        }
+    }
+
+    public void UpdateScoreCount(int score)
+    {
+        scoreCount.text = "Score : " + score;
     }
 
     public void OnLoginClicked()
@@ -179,7 +198,7 @@ public class IHMManager : MonoBehaviour
 
                     reverse = true;
 
-                    scoreArrow.transform.rotation = new Quaternion(0,0,0,0);
+                    scoreArrow.transform.rotation = new Quaternion(180,0,0,0);
 
                     scoreArrow.gameObject.SetActive(true);
                     dateArrow.gameObject.SetActive(false);
@@ -204,7 +223,7 @@ public class IHMManager : MonoBehaviour
 
                     reverse = false;
 
-                    scoreArrow.transform.rotation = new Quaternion(180,0,0,0);
+                    scoreArrow.transform.rotation = new Quaternion(0,0,0,0);
 
                     scoreArrow.gameObject.SetActive(true);
                     dateArrow.gameObject.SetActive(false);
@@ -232,7 +251,7 @@ public class IHMManager : MonoBehaviour
 
                     reverse = true;
 
-                    dateArrow.transform.rotation = new Quaternion(0,0,0,0);
+                    dateArrow.transform.rotation = new Quaternion(180,0,0,0);
 
                     dateArrow.gameObject.SetActive(true);
                     usernameArrow.gameObject.SetActive(false);
@@ -257,7 +276,7 @@ public class IHMManager : MonoBehaviour
 
                     reverse = false;
 
-                    dateArrow.transform.rotation = new Quaternion(180,0,0,0);
+                    dateArrow.transform.rotation = new Quaternion(0,0,0,0);
 
                     dateArrow.gameObject.SetActive(true);
                     usernameArrow.gameObject.SetActive(false);

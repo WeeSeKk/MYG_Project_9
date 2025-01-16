@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7675118998398086121}
   - component: {fileID: 3176717668748529473}
   - component: {fileID: 8323528420050067589}
+  - component: {fileID: -2436878204938628228}
   m_Layer: 0
   m_Name: ScoreBoxCollider
   m_TagString: Untagged
@@ -108,3 +109,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 31.092817, z: 1}
   m_Center: {x: 0, y: -15.046409, z: 0}
+--- !u!114 &-2436878204938628228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5940303206635468220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52593d2849085a044a81cb2b3f1d23df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

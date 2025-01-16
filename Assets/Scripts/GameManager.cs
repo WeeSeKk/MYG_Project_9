@@ -26,43 +26,61 @@ public class GameManager : MonoBehaviour
     {
         quaternion = cylinder.transform.rotation;
         EventManager.gameOver += GameOver;
+        EventManager.gameStart += StartGame;
         EventManager.scroreUP += CountScore;
         score = 0;
     }
-    
+
     void Update()
     {
-        
+
     }
 
-    public void ResetGame()
+    public void ResetGame(bool reset)
     {
         score = 0;
+        IHMManager.instance.UpdateScoreCount(score);
 
-        for (int i = 0; i < obstParent.childCount; i ++)
+        for (int i = 0; i < obstParent.childCount; i++)
         {
             GameObject child = obstParent.GetChild(i).gameObject;
 
-            if (child.activeSelf == true) {
+            if (child.activeSelf == true)
+            {
                 ObjectPool.ReturnObjectToPool(child);
             }
         }
 
-        player.transform.position = new Vector3(0,0,0);
-        player.transform.rotation = new Quaternion(0,0,0,0);
+        cylinder.transform.rotation = quaternion;
+
+        if (reset)
+        {
+            player.transform.position = new Vector3(0, 0, 0);
+            player.transform.rotation = new Quaternion(0, 0, 0, 0);
+
+            Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
+            playerRigidbody.useGravity = true;
+            EventManager.ResetGame();
+        }
+        else
+        {
+            player.SetActive(false);
+        }
+    }
+
+    void StartGame()
+    {
+        player.transform.position = new Vector3(0, 0, 0);
+        player.transform.rotation = new Quaternion(0, 0, 0, 0);
 
         Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
         playerRigidbody.useGravity = true;
-
-        cylinder.transform.rotation = quaternion;
-
-        EventManager.ResetGame();
     }
 
     void CountScore()
     {
-        score ++;
-        Debug.Log("Score == " + score);
+        score++;
+        IHMManager.instance.UpdateScoreCount(score);
     }
 
     void GameOver()

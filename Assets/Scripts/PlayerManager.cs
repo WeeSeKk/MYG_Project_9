@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour
     {
         EventManager.resetGame += ResetVelocity;
         EventManager.gameOver += GameOver;
+        EventManager.gameStart += ResetGame;
         EventManager.resetGame += ResetGame;
     }
 

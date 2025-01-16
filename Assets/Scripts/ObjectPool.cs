@@ -59,7 +59,7 @@ public class ObjectPool : MonoBehaviour
 
         if(pool == null)
         {
-            Debug.LogWarning("ERROR " + gameObject);
+            //Debug.LogWarning("ERROR " + gameObject);
         }
         else
         {

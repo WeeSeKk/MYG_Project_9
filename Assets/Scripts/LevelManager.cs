@@ -23,9 +23,11 @@ public class LevelManager : MonoBehaviour
 
     public void StartGame()
     {
+        gameOver = false;
         StartCoroutine(ObstaclesSpawner());
         EventManager.GameStart();
         playerGO.SetActive(true);
+        
     }
 
     void InitializeObstcFrequenciesBottom()
@@ -100,11 +102,11 @@ public class LevelManager : MonoBehaviour
             GameObject newObstcTop = ObjectPool.ObstcSpawn(obstacleGO, topPos, toprot);
             newObstcTop.transform.SetParent(obstParent);
 
-            for (int i = 0; i < newObstcTop.transform.childCount; i ++) {
-                if (newObstcTop.transform.GetChild(i).name == "ScoreCollider" && newObstcTop.transform.GetChild(i).gameObject.activeSelf == false) {
-                    newObstcTop.transform.GetChild(i).gameObject.SetActive(true);
+            
+                if (newObstcTop.transform.GetChild(0).name == "ScoreBoxCollider" && newObstcTop.transform.GetChild(0).gameObject.activeSelf == false) {
+                    newObstcTop.transform.GetChild(0).gameObject.SetActive(true);
                 }
-            }
+            
 
             Transform bottomObstaclePosition = GenerateObstcPositionBottom();
 
@@ -114,11 +116,11 @@ public class LevelManager : MonoBehaviour
             GameObject newObstcBottom = ObjectPool.ObstcSpawn(obstacleGO, bottomPos, bottomrot);
             newObstcBottom.transform.SetParent(obstParent);
             
-            for (int i = 0; i < newObstcBottom.transform.childCount; i ++) {
-                if (newObstcBottom.transform.GetChild(i).name == "ScoreCollider" && newObstcBottom.transform.GetChild(i).gameObject.activeSelf == true) {
-                    newObstcBottom.transform.GetChild(i).gameObject.SetActive(false);
+            
+                if (newObstcBottom.transform.GetChild(0).name == "ScoreBoxCollider" && newObstcBottom.transform.GetChild(0).gameObject.activeSelf == true) {
+                    newObstcBottom.transform.GetChild(0).gameObject.SetActive(false);
                 }
-            }
+            
             
             yield return new WaitForSeconds(1f);
         }
