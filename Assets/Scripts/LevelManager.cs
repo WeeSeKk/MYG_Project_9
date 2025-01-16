@@ -4,63 +4,100 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    [SerializeField] List<GameObject> obstacles;
+    [SerializeField] List<Transform> obstaclesPositionBottom;
+    [SerializeField] List<Transform> obstaclesPositionTop;
     [SerializeField] Transform obstParent;
-    [SerializeField] Transform obstSpanwPosBottom;
-    [SerializeField] Transform obstSpanwPosTop;
-    static readonly Dictionary<GameObject, int> obstcFrequencies = new Dictionary<GameObject, int>();
+    [SerializeField] GameObject obstacleGO;
+    [SerializeField] GameObject playerGO;
+    static readonly Dictionary<Transform, int> obstcFrequenciesBottom = new Dictionary<Transform, int>();
+    static readonly Dictionary<Transform, int> obstcFrequenciesTop = new Dictionary<Transform, int>();
     bool gameOver;
 
     void Start()
     {
         EventManager.gameOver += GameOver;
         EventManager.resetGame += ResetGame;
-        InitializeObstcFrequencies();
-        StartCoroutine(ObstaclesSpawner());
+        InitializeObstcFrequenciesBottom();
+        InitializeObstcFrequenciesTop();
     }
-    void InitializeObstcFrequencies()
+
+    public void StartGame()
     {
-        obstcFrequencies.Clear();
-
-        obstcFrequencies.Add(obstacles[0], 100);//Obstc_LOW
-        obstcFrequencies.Add(obstacles[1], 100);//Obstc_MID
-        obstcFrequencies.Add(obstacles[2], 100);//Obstc_HIGH
+        StartCoroutine(ObstaclesSpawner());
+        EventManager.GameStart();
+        playerGO.SetActive(true);
     }
 
-    public GameObject GenerateObstc()
+    void InitializeObstcFrequenciesBottom()
+    {
+        obstcFrequenciesBottom.Clear();
+
+        obstcFrequenciesBottom.Add(obstaclesPositionBottom[0], 25);//Obstc_LOW
+        obstcFrequenciesBottom.Add(obstaclesPositionBottom[1], 50);//Obstc_MID
+        obstcFrequenciesBottom.Add(obstaclesPositionBottom[2], 100);//Obstc_HIGH
+    }
+
+    void InitializeObstcFrequenciesTop()
+    {
+        obstcFrequenciesBottom.Clear();
+
+        obstcFrequenciesTop.Add(obstaclesPositionTop[0], 100);//Obstc_LOW
+        obstcFrequenciesTop.Add(obstaclesPositionTop[1], 100);//Obstc_MID
+        obstcFrequenciesTop.Add(obstaclesPositionTop[2], 100);//Obstc_HIGH
+    }
+
+    public Transform GenerateObstcPositionBottom()
     {
         int totalWeight = 0;
-        foreach (var weight in obstcFrequencies.Values)
+        foreach (var weight in obstcFrequenciesBottom.Values)
         {
             totalWeight += weight;
         }
 
         int randomValue = Random.Range(0, totalWeight);
-        foreach (var obstc in obstcFrequencies.Keys)
+        foreach (var obstc in obstcFrequenciesBottom.Keys)
         {
-            if (randomValue < obstcFrequencies[obstc])
+            if (randomValue < obstcFrequenciesBottom[obstc])
             {
                 return obstc;
             }
-            randomValue -= obstcFrequencies[obstc];
+            randomValue -= obstcFrequenciesBottom[obstc];
         }
 
-        return obstacles[0];//not supposed to happen
+        return obstaclesPositionBottom[0];//not supposed to happen
+    }
+
+    public Transform GenerateObstcPositionTop()
+    {
+        int totalWeight = 0;
+        foreach (var weight in obstcFrequenciesTop.Values)
+        {
+            totalWeight += weight;
+        }
+
+        int randomValue = Random.Range(0, totalWeight);
+        foreach (var obstc in obstcFrequenciesTop.Keys)
+        {
+            if (randomValue < obstcFrequenciesTop[obstc])
+            {
+                return obstc;
+            }
+            randomValue -= obstcFrequenciesTop[obstc];
+        }
+
+        return obstaclesPositionTop[0];//not supposed to happen
     }
 
     public IEnumerator ObstaclesSpawner()
     {
-        while(!gameOver)//top y 14 // bottom y -9
+        while(!gameOver)
         {
-            GameObject topObstacle = GenerateObstc();
+            Transform topObstaclePosition = GenerateObstcPositionTop();
 
-            //Vector3 topPos = new Vector3(15, 14, 0);
-            //Quaternion toprot = new Quaternion(0, 0, 180, 0);
+            Vector3 topPos = topObstaclePosition.position;
+            Quaternion toprot = topObstaclePosition.rotation;
 
-            Vector3 topPos = obstSpanwPosTop.position;
-            Quaternion toprot = obstSpanwPosTop.rotation;
-
-            GameObject newObstcTop = ObjectPool.ObstcSpawn(topObstacle, topPos, toprot);
+            GameObject newObstcTop = ObjectPool.ObstcSpawn(obstacleGO, topPos, toprot);
             newObstcTop.transform.SetParent(obstParent);
 
             for (int i = 0; i < newObstcTop.transform.childCount; i ++) {
@@ -69,17 +106,12 @@ public class LevelManager : MonoBehaviour
                 }
             }
 
-            //if obstc == high reduce chance of another high spawning if low difficulty
+            Transform bottomObstaclePosition = GenerateObstcPositionBottom();
 
-            GameObject bottomObstacle = GenerateObstc();
+            Vector3 bottomPos = bottomObstaclePosition.position;
+            Quaternion bottomrot = bottomObstaclePosition.rotation;
 
-            //Vector3 bottomPos = new Vector3(15, -9, 0);
-            //Quaternion bottomrot = new Quaternion(0, 0, 0, 0);
-
-            Vector3 bottomPos = obstSpanwPosBottom.position;
-            Quaternion bottomrot = obstSpanwPosBottom.rotation;
-
-            GameObject newObstcBottom = ObjectPool.ObstcSpawn(bottomObstacle, bottomPos, bottomrot);
+            GameObject newObstcBottom = ObjectPool.ObstcSpawn(obstacleGO, bottomPos, bottomrot);
             newObstcBottom.transform.SetParent(obstParent);
             
             for (int i = 0; i < newObstcBottom.transform.childCount; i ++) {
@@ -88,8 +120,6 @@ public class LevelManager : MonoBehaviour
                 }
             }
             
-
-
             yield return new WaitForSeconds(1f);
         }
     }

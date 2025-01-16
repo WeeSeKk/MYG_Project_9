@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Transform obstParent;
     [SerializeField] GameObject player;
     [SerializeField] GameObject cylinder;
+    Quaternion quaternion;
     public static GameManager instance;
     int score;
 
@@ -19,11 +20,11 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
-        //DontDestroyOnLoad(this.gameObject);
     }
 
     void Start()
     {
+        quaternion = cylinder.transform.rotation;
         EventManager.gameOver += GameOver;
         EventManager.scroreUP += CountScore;
         score = 0;
@@ -53,7 +54,7 @@ public class GameManager : MonoBehaviour
         Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
         playerRigidbody.useGravity = true;
 
-        cylinder.transform.rotation = new Quaternion(0, 0, 0, 0);
+        cylinder.transform.rotation = quaternion;
 
         EventManager.ResetGame();
     }

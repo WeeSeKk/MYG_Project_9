@@ -6,7 +6,7 @@ public class ObstacleController : MonoBehaviour
 {
     void OnEnable()
     {
-        Invoke("ReturnToPool", 5f);
+        Invoke("ReturnToPool", 7f);
     }
 
     void ReturnToPool()

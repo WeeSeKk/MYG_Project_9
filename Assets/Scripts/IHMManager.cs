@@ -15,6 +15,9 @@ public class IHMManager : MonoBehaviour
     [SerializeField] TMP_InputField passwordInputField;
     [SerializeField] GameObject currentUserScore;
     [SerializeField] List<GameObject> playersScores;
+    [SerializeField] Image usernameArrow;
+    [SerializeField] Image scoreArrow;
+    [SerializeField] Image dateArrow;
     LeaderboardUserdata leaderboardUserdata = new LeaderboardUserdata();
     public static IHMManager instance;
     bool reverse;
@@ -61,6 +64,17 @@ public class IHMManager : MonoBehaviour
     {
         lobbyUI.SetActive(false);
         LeaderboardUI.SetActive(true);
+    }
+
+    public void ShowLeaderboard()
+    {
+        if (LeaderboardUI.gameObject.activeSelf == true) {
+            LeaderboardUI.SetActive(false);
+        }
+        else {
+            gameOverScreenUI.SetActive(false);
+            LeaderboardUI.SetActive(true);
+        }
     }
 
     public async Task AddCurrentUserOnLeaderboard()
@@ -111,6 +125,12 @@ public class IHMManager : MonoBehaviour
                     dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
                     reverse = true;
+
+                    usernameArrow.transform.rotation = new Quaternion(0,0,0,0);
+
+                    usernameArrow.gameObject.SetActive(true);
+                    scoreArrow.gameObject.SetActive(false);
+                    dateArrow.gameObject.SetActive(false);
                 }
             }
             else
@@ -130,6 +150,12 @@ public class IHMManager : MonoBehaviour
                     dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
                     reverse = false;
+
+                    usernameArrow.transform.rotation = new Quaternion(180,0,0,0);
+
+                    usernameArrow.gameObject.SetActive(true);
+                    scoreArrow.gameObject.SetActive(false);
+                    dateArrow.gameObject.SetActive(false);
                 }
             }
         }
@@ -152,6 +178,12 @@ public class IHMManager : MonoBehaviour
                     dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
                     reverse = true;
+
+                    scoreArrow.transform.rotation = new Quaternion(0,0,0,0);
+
+                    scoreArrow.gameObject.SetActive(true);
+                    dateArrow.gameObject.SetActive(false);
+                    usernameArrow.gameObject.SetActive(false);
                 }
             }
             else
@@ -171,6 +203,12 @@ public class IHMManager : MonoBehaviour
                     dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
                     reverse = false;
+
+                    scoreArrow.transform.rotation = new Quaternion(180,0,0,0);
+
+                    scoreArrow.gameObject.SetActive(true);
+                    dateArrow.gameObject.SetActive(false);
+                    usernameArrow.gameObject.SetActive(false);
                 }
             }
         }
@@ -193,6 +231,12 @@ public class IHMManager : MonoBehaviour
                     dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
                     reverse = true;
+
+                    dateArrow.transform.rotation = new Quaternion(0,0,0,0);
+
+                    dateArrow.gameObject.SetActive(true);
+                    usernameArrow.gameObject.SetActive(false);
+                    scoreArrow.gameObject.SetActive(false);
                 }
             }
             else
@@ -212,6 +256,12 @@ public class IHMManager : MonoBehaviour
                     dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
                     reverse = false;
+
+                    dateArrow.transform.rotation = new Quaternion(180,0,0,0);
+
+                    dateArrow.gameObject.SetActive(true);
+                    usernameArrow.gameObject.SetActive(false);
+                    scoreArrow.gameObject.SetActive(false);
                 }
             }
         }

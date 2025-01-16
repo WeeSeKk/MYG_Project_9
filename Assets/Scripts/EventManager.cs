@@ -8,6 +8,7 @@ public class EventManager : MonoBehaviour
 {
     public static EventManager instance;
     public static event Action gameOver;
+    public static event Action gameStart;
     public static event Action resetGame;
     public static event Action scroreUP;
 
@@ -27,7 +28,11 @@ public class EventManager : MonoBehaviour
     public static void GameOver()
     {
         gameOver?.Invoke();
-        Debug.Log("Game Over !");
+    }
+
+    public static void GameStart()
+    {
+        gameStart?.Invoke();
     }
 
     public static void ScroreUP()
