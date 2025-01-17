@@ -106,7 +106,7 @@ public class IHMManager : MonoBehaviour
 
         usernameText.text = currentUserDatas.Contains("username") ? currentUserDatas["username"].AsString : "Unknown";
         scoreText.text = (currentUserDatas.Contains("score") ? currentUserDatas["score"].AsInt32 : 0).ToString();
-        dateText.text = (currentUserDatas.Contains("dateofscore") ? currentUserDatas["dateofscore"].ToUniversalTime() : DateTime.MinValue).ToString().Substring(0, currentUserDatas["dateofscore"].ToString().Length - 9);
+        dateText.text = (currentUserDatas.Contains("dateofscore") ? currentUserDatas["dateofscore"].ToUniversalTime() : DateTime.MinValue).ToString().Substring(0, currentUserDatas["dateofscore"].ToString().Length - 13);
     }
 
     public async Task RequestLeaderboardDatas()
