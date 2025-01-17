@@ -115,11 +115,11 @@ public class DatabaseManager : MonoBehaviour
         OnLogin(username, password);
     }
 
-    public async Task UpdatePlayerScore(string username, int newScore)
+    public async Task UpdatePlayerScore(int newScore)
     {
         var collection = database.GetCollection<BsonDocument>("Leaderboard");
 
-        var filter = Builders<BsonDocument>.Filter.Eq("username", username);
+        var filter = Builders<BsonDocument>.Filter.Eq("username", currentUsername);
 
         var userDocument = await collection.Find(filter).FirstOrDefaultAsync();
 
@@ -127,7 +127,7 @@ public class DatabaseManager : MonoBehaviour
         {
             var newUserDocument = new BsonDocument
             {
-                { "username", username },
+                { "username", currentUsername },
                 { "score", newScore },
                 { "dateofscore", DateTime.UtcNow }
             };

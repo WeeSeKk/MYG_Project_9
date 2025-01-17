@@ -78,11 +78,11 @@ public class GameManager : MonoBehaviour
         IHMManager.instance.UpdateScoreCount(score);
     }
 
-    void GameOver()
+    async void GameOver()
     {
-        //DatabaseManager.instance.UpdatePlayerScore(DatabaseManager.instance.currentUsername, score);
         Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
         playerRigidbody.useGravity = false;
         DOTween.Clear();
+        await DatabaseManager.instance.UpdatePlayerScore(score);
     }
 }
