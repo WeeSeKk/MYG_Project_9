@@ -115,31 +115,41 @@ public class DatabaseManager : MonoBehaviour
         OnLogin(username, password);
     }
 
-    private async Task AddOrUpdateUserScore(int newScore)
+    public async Task UpdatePlayerScore(string username, int newScore)
     {
         var collection = database.GetCollection<BsonDocument>("Leaderboard");
 
-        var filter = Builders<BsonDocument>.Filter.Eq("username", currentUsername);
-        var update = Builders<BsonDocument>.Update
-            .Set("score", newScore)
-            .Set("dateofscore", DateTime.UtcNow);
+        var filter = Builders<BsonDocument>.Filter.Eq("username", username);
 
-        try
+        var userDocument = await collection.Find(filter).FirstOrDefaultAsync();
+
+        if (userDocument == null)
         {
-            var result = await collection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
-
-            if (result.MatchedCount > 0)
+            var newUserDocument = new BsonDocument
             {
-                Debug.Log($"User '{currentUsername}' score updated to: {newScore}");
+                { "username", username },
+                { "score", newScore },
+                { "dateofscore", DateTime.UtcNow }
+            };
+
+            await collection.InsertOneAsync(newUserDocument);
+        }
+        else
+        {
+            int currentScore = userDocument["score"].AsInt32;
+
+            if (newScore > currentScore)
+            {
+                var update = Builders<BsonDocument>.Update
+                    .Set("score", newScore)
+                    .Set("dateofscore", DateTime.UtcNow);
+
+                await collection.UpdateOneAsync(filter, update);
             }
             else
             {
-                Debug.Log($"User '{currentUsername}' added with score: {newScore}");
+                Debug.Log("same score");
             }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Problem: {ex.Message}");
         }
     }
 

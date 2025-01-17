@@ -80,6 +80,7 @@ public class GameManager : MonoBehaviour
 
     void GameOver()
     {
+        //DatabaseManager.instance.UpdatePlayerScore(DatabaseManager.instance.currentUsername, score);
         Rigidbody playerRigidbody = player.GetComponent<Rigidbody>();
         playerRigidbody.useGravity = false;
         DOTween.Clear();
