@@ -148,7 +148,7 @@ public class DatabaseManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("same score");
+                Debug.Log("Same score as databse");
             }
         }
     }
