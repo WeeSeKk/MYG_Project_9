@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject cylinder;
     Quaternion quaternion;
     public static GameManager instance;
+    int targetFrameRate = 165;
     int score;
 
     void Awake()
@@ -24,6 +25,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = targetFrameRate;
         quaternion = cylinder.transform.rotation;
         EventManager.gameOver += GameOver;
         EventManager.gameStart += StartGame;

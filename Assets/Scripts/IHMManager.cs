@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -96,7 +97,7 @@ public class IHMManager : MonoBehaviour
         }
     }
 
-    public async Task AddCurrentUserOnLeaderboard()
+    public async Task AddCurrentUserOnLeaderboardNOSQL()
     {
         var currentUserDatas = await DatabaseManager.instance.CheckUserInLeaderboard(DatabaseManager.instance.currentUsername);
 
@@ -109,9 +110,9 @@ public class IHMManager : MonoBehaviour
         dateText.text = (currentUserDatas.Contains("dateofscore") ? currentUserDatas["dateofscore"].ToUniversalTime() : DateTime.MinValue).ToString().Substring(0, currentUserDatas["dateofscore"].ToString().Length - 9);
     }
 
-    public async Task RequestLeaderboardDatas()
+    public async Task RequestLeaderboardDatasNOSQL()
     {
-        var topScores = await DatabaseManager.instance.GetLeaderboardDatas();
+        var topScores = await DatabaseManager.instance.GetLeaderboardDatasNOSQL();
 
         foreach (var score in topScores)
         {
@@ -121,6 +122,38 @@ public class IHMManager : MonoBehaviour
         }
 
         ShowLeaderboardDatas("Scores");
+    }
+
+    public async Task RequestLeaderboardDatasSQL()
+    {
+        JArray jArray = await DatabaseManager.instance.GetLeaderboardDatasSQL();
+
+        foreach (JObject keys in jArray)
+        {
+            leaderboardUserdata.usernames.Add((string)keys.GetValue("user"));
+            leaderboardUserdata.scores.Add((int)keys.GetValue("score"));
+            leaderboardUserdata.dates.Add((DateTime)keys.GetValue("dateofscore"));
+        }
+
+        ShowLeaderboardDatas("Scores");
+    }
+
+    public async Task AddCurrentUserOnLeaderboardSQL()
+    {
+        JArray jArray = await DatabaseManager.instance.CheckUserInLeaderboardSQL();
+
+        TMP_Text usernameText = currentUserScore.transform.GetChild(0).GetComponent<TMP_Text>();
+        TMP_Text scoreText = currentUserScore.transform.GetChild(1).GetComponent<TMP_Text>();
+        TMP_Text dateText = currentUserScore.transform.GetChild(2).GetComponent<TMP_Text>();
+
+        foreach (JObject keys in jArray)
+        {
+            usernameText.text = (string)keys.GetValue("user");
+            scoreText.text = (string)keys.GetValue("score");
+            string date = (string)keys.GetValue("dateofscore");
+            date.Substring(0, date.Length - 9);
+            dateText.text = date;
+        }
     }
 
     public void ShowLeaderboardDatas(string type)

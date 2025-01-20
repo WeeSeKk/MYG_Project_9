@@ -4,8 +4,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using Newtonsoft.Json.Linq;
+using UnityEngine.Networking;
 using BCrypt.Net;
 using BCrypt;
+using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 
 public class DatabaseManager : MonoBehaviour
 {
@@ -14,6 +17,7 @@ public class DatabaseManager : MonoBehaviour
     MongoClient client;
     IMongoDatabase database;
     public string currentUsername;
+    bool sql;
 
     void Awake()
     {
@@ -26,6 +30,8 @@ public class DatabaseManager : MonoBehaviour
             instance = this;
         }
     }
+
+    #region NOSQL
 
     void Start()
     {
@@ -72,8 +78,8 @@ public class DatabaseManager : MonoBehaviour
         {
             Debug.Log("User found, login successful!");
             currentUsername = username;
-            await IHMManager.instance.RequestLeaderboardDatas();
-            await IHMManager.instance.AddCurrentUserOnLeaderboard();
+            await IHMManager.instance.RequestLeaderboardDatasNOSQL();
+            await IHMManager.instance.AddCurrentUserOnLeaderboardNOSQL();
             IHMManager.instance.ShowLeaderboardDatas("Scores");
             IHMManager.instance.CloseLobbyUI();
         }
@@ -180,7 +186,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    public async Task<List<BsonDocument>> GetLeaderboardDatas()
+    public async Task<List<BsonDocument>> GetLeaderboardDatasNOSQL()
     {
         var collection = database.GetCollection<BsonDocument>("Leaderboard");
         int limit = 10;
@@ -189,7 +195,7 @@ public class DatabaseManager : MonoBehaviour
         {
             var sort = Builders<BsonDocument>.Sort.Descending("score");
             var topScores = await collection
-                .Find(new BsonDocument()) 
+                .Find(new BsonDocument())
                 .Sort(sort)
                 .Limit(limit)
                 .ToListAsync();
@@ -201,4 +207,138 @@ public class DatabaseManager : MonoBehaviour
             return null;
         }
     }
+    #endregion
+
+    #region SQL
+
+    public async Task<JArray> GetLeaderboardDatasSQL()
+    {
+        string url = "http://localhost/MYG9/index.php?leaderboard=get";
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            var operation = webRequest.SendWebRequest();
+
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            string[] pages = url.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    return null;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    return null;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    break;
+            }
+
+            JArray jArray = JArray.Parse(webRequest.downloadHandler.text);
+
+            return jArray;
+        }
+    }
+
+    public async Task<JArray> CheckUserInLeaderboardSQL()
+    {
+        string url = "http://localhost/MYG9/index.php?currentuser=" + currentUsername;
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            var operation = webRequest.SendWebRequest();
+
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            string[] pages = url.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    return null;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    return null;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    break;
+            }
+
+            JArray jArray = JArray.Parse(webRequest.downloadHandler.text);
+
+            return jArray;
+        }
+    }
+
+    public async void OnLoginSQL(string username, string password)
+    {
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+        formData.Add(new MultipartFormDataSection("action", "login"));
+        formData.Add(new MultipartFormDataSection("username", username));
+        formData.Add(new MultipartFormDataSection("password", password));
+
+        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG/insert.php", formData);
+        await www.SendWebRequest();
+
+        JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
+        string resultString = "";
+        foreach (var key in jsonResponse)
+        {
+            resultString += $"{key.Key}: {key.Value}\n";
+        }
+
+        if (resultString.Contains("Success: True"))
+        {
+            currentUsername = username;
+            //loged in
+        }
+        else
+        {
+            //error
+        }
+    }
+
+    public async void OnRegisterSQL(string username, string password)
+    {
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+        formData.Add(new MultipartFormDataSection("action", "register"));
+        formData.Add(new MultipartFormDataSection("username", username));
+        formData.Add(new MultipartFormDataSection("password", password));
+
+        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG/insert.php", formData);
+        await www.SendWebRequest();
+
+        JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
+        string resultString = "";
+        foreach (var key in jsonResponse)
+        {
+            resultString += $"{key.Key}: {key.Value}\n";
+        }
+
+        if (resultString.Contains("Success: True"))
+        {
+            //registered
+        }
+        else
+        {
+            //error
+        }
+    }
+
+
+
+    #endregion
 }
