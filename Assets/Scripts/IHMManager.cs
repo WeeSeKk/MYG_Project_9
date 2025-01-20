@@ -12,6 +12,7 @@ namespace IHM
 {
     public class IHMManager : MonoBehaviour
     {
+        public static IHMManager instance;
         [SerializeField] GameObject gameOverScreenUI;
         [SerializeField] GameObject lobbyUI;
         [SerializeField] GameObject leaderboardUI;
@@ -30,8 +31,7 @@ namespace IHM
         [SerializeField] Button retryConnectionButton;
         [SerializeField] Button showAllButton;
         [SerializeField] Button showMonthlyButton;
-        LeaderboardUserdata leaderboardUserdata = new LeaderboardUserdata();
-        public static IHMManager instance;
+        public LeaderboardUserdata leaderboardUserdata = new LeaderboardUserdata();
         bool reverse;
         bool monthly = false;
 

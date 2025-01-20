@@ -15,10 +15,10 @@ namespace Database
     public class DatabaseManager : MonoBehaviour
     {
         public static DatabaseManager instance;
-        IMongoCollection<BsonDocument> _collection;
         MongoClient client;
         IMongoDatabase database;
         public string currentUsername;
+        public bool connected;
         bool sql;
 
         #region Utility
@@ -51,11 +51,13 @@ namespace Database
                 database.RunCommand<BsonDocument>(command);
 
                 Debug.Log("Connected to MongoDB successfully!");
+                connected = true;
                 IHMManager.instance.DatabaseConnectionUI(true);
             }
             catch (Exception ex)
             {
                 Debug.LogError("Failed to connect to MongoDB: " + ex.Message);
+                connected = false;
                 IHMManager.instance.DatabaseConnectionUI(false);
             }
         }
@@ -256,7 +258,7 @@ namespace Database
                 }
                 else
                 {
-                    Debug.Log("Same score as databse");
+                    Debug.Log("Score in database is higher or equal NOSQL");
                 }
             }
         }
@@ -525,14 +527,24 @@ namespace Database
             formData.Add(new MultipartFormDataSection("action", "updatescore"));
             formData.Add(new MultipartFormDataSection("username", currentUsername));
             formData.Add(new MultipartFormDataSection("score", newScore.ToString()));
-            formData.Add(new MultipartFormDataSection("dateofscore", DateTime.UtcNow.ToString()));
+            formData.Add(new MultipartFormDataSection("dateofscore", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")));
 
             UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
             await www.SendWebRequest();
 
+            JArray jsonResponse = JArray.Parse(www.downloadHandler.text);
 
-            Debug.Log(www.downloadHandler.text);
+            string resultString = "";
+            foreach (var item in jsonResponse)
+            {
+                resultString += $"{item}\n";
+            }
+
+            if (www.downloadHandler.text.Contains("Score in database is higher or equal"))
+            {
+                Debug.Log("Score in database is higher or equal SQL");
+            }
         }
-        #endregion
     }
+    #endregion
 }
