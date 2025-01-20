@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using MongoDB.Bson;
 using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
@@ -8,7 +9,6 @@ using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 using BCrypt.Net;
 using BCrypt;
-using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 
 public class DatabaseManager : MonoBehaviour
 {
@@ -290,7 +290,7 @@ public class DatabaseManager : MonoBehaviour
         formData.Add(new MultipartFormDataSection("username", username));
         formData.Add(new MultipartFormDataSection("password", password));
 
-        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG/insert.php", formData);
+        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
         await www.SendWebRequest();
 
         JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
@@ -303,6 +303,10 @@ public class DatabaseManager : MonoBehaviour
         if (resultString.Contains("Success: True"))
         {
             currentUsername = username;
+            await IHMManager.instance.RequestLeaderboardDatasSQL();
+            await IHMManager.instance.AddCurrentUserOnLeaderboardSQL();
+            IHMManager.instance.ShowLeaderboardDatas("Scores");
+            IHMManager.instance.CloseLobbyUI();
             //loged in
         }
         else
@@ -318,7 +322,7 @@ public class DatabaseManager : MonoBehaviour
         formData.Add(new MultipartFormDataSection("username", username));
         formData.Add(new MultipartFormDataSection("password", password));
 
-        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG/insert.php", formData);
+        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
         await www.SendWebRequest();
 
         JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
@@ -331,6 +335,8 @@ public class DatabaseManager : MonoBehaviour
         if (resultString.Contains("Success: True"))
         {
             //registered
+            OnLoginSQL(username, password);
+            //OnRegister(username, password);
         }
         else
         {
@@ -338,7 +344,33 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
+    public async Task UpdatePlayerScoreSQL(int newScore)
+    {
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+        formData.Add(new MultipartFormDataSection("action", "updatescore"));
+        formData.Add(new MultipartFormDataSection("username", currentUsername));
+        formData.Add(new MultipartFormDataSection("score", newScore.ToString()));
+        formData.Add(new MultipartFormDataSection("dateofscore", DateTime.UtcNow.ToString()));
 
+        UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
+        await www.SendWebRequest();
+
+        JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
+        string resultString = "";
+        foreach (var key in jsonResponse)
+        {
+            resultString += $"{key.Key}: {key.Value}\n";
+        }
+
+        if (resultString.Contains("Success: True"))
+        {
+            //score updated
+        }
+        else
+        {
+            //error
+        }
+    }
 
     #endregion
 }
