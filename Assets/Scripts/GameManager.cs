@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     int targetFrameRate = 165;
     int score;
+    int targetFrameRate = 165;
 
     void Awake()
     {
