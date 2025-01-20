@@ -109,10 +109,12 @@ public class IHMManager : MonoBehaviour
 
     public void ShowLeaderboard()
     {
-        if (leaderboardUI.gameObject.activeSelf == true) {
+        if (leaderboardUI.gameObject.activeSelf == true)
+        {
             leaderboardUI.SetActive(false);
         }
-        else {
+        else
+        {
             gameOverScreenUI.SetActive(false);
             leaderboardUI.SetActive(true);
         }
@@ -179,161 +181,101 @@ public class IHMManager : MonoBehaviour
     {
         if (type == "Usernames")
         {
+            var sortedUsernames = leaderboardUserdata.usernames.OrderByDescending(name => name).ToList();
+            usernameArrow.transform.rotation = new Quaternion(180, 0, 0, 0);
+
             if (!reverse)
             {
-                var sortedUsernames = leaderboardUserdata.usernames.OrderBy(name => name).ToList();
-
-                for (int i = 0; i < sortedUsernames.Count && i < playersScores.Count; i++)
-                {
-                    int index = leaderboardUserdata.usernames.IndexOf(sortedUsernames[i]);
-
-                    TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
-                    TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
-                    TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
-
-                    usernameText.text = leaderboardUserdata.usernames[index];
-                    scoreText.text = leaderboardUserdata.scores[index].ToString();
-                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
-
-                    reverse = true;
-
-                    usernameArrow.transform.rotation = new Quaternion(0,0,0,0);
-
-                    usernameArrow.gameObject.SetActive(true);
-                    scoreArrow.gameObject.SetActive(false);
-                    dateArrow.gameObject.SetActive(false);
-                }
+                sortedUsernames = leaderboardUserdata.usernames.OrderBy(name => name).ToList();
+                usernameArrow.transform.rotation = new Quaternion(0, 0, 0, 0);
+                reverse = true;
             }
             else
             {
-                var sortedUsernames = leaderboardUserdata.usernames.OrderByDescending(name => name).ToList();
+                reverse = false;
+            }
 
-                for (int i = 0; i < sortedUsernames.Count && i < playersScores.Count; i++)
-                {
-                    int index = leaderboardUserdata.usernames.IndexOf(sortedUsernames[i]);
+            for (int i = 0; i < sortedUsernames.Count && i < playersScores.Count; i++)
+            {
+                int index = leaderboardUserdata.usernames.IndexOf(sortedUsernames[i]);
 
-                    TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
-                    TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
-                    TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
+                TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
+                TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
 
-                    usernameText.text = leaderboardUserdata.usernames[index];
-                    scoreText.text = leaderboardUserdata.scores[index].ToString();
-                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                usernameText.text = leaderboardUserdata.usernames[index];
+                scoreText.text = leaderboardUserdata.scores[index].ToString();
+                dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
-                    reverse = false;
-
-                    usernameArrow.transform.rotation = new Quaternion(180,0,0,0);
-
-                    usernameArrow.gameObject.SetActive(true);
-                    scoreArrow.gameObject.SetActive(false);
-                    dateArrow.gameObject.SetActive(false);
-                }
+                usernameArrow.gameObject.SetActive(true);
+                scoreArrow.gameObject.SetActive(false);
+                dateArrow.gameObject.SetActive(false);
             }
         }
         else if (type == "Scores")
         {
+            var sortedScores = leaderboardUserdata.scores.OrderByDescending(score => score).ToList();
+            scoreArrow.transform.rotation = new Quaternion(0, 0, 0, 0);
+
             if (!reverse)
             {
-                var sortedScores = leaderboardUserdata.scores.OrderBy(score => score).ToList();
-
-                for (int i = 0; i < sortedScores.Count && i < playersScores.Count; i++)
-                {
-                    int index = leaderboardUserdata.scores.IndexOf(sortedScores[i]);
-
-                    TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
-                    TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
-                    TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
-
-                    usernameText.text = leaderboardUserdata.usernames[index];
-                    scoreText.text = leaderboardUserdata.scores[index].ToString();
-                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
-
-                    reverse = true;
-
-                    scoreArrow.transform.rotation = new Quaternion(180,0,0,0);
-
-                    scoreArrow.gameObject.SetActive(true);
-                    dateArrow.gameObject.SetActive(false);
-                    usernameArrow.gameObject.SetActive(false);
-                }
+                sortedScores = leaderboardUserdata.scores.OrderBy(score => score).ToList();
+                scoreArrow.transform.rotation = new Quaternion(180, 0, 0, 0);
+                reverse = true;
             }
             else
             {
-                var sortedScores = leaderboardUserdata.scores.OrderByDescending(score => score).ToList();
+                reverse = false;
+            }
 
-                for (int i = 0; i < sortedScores.Count && i < playersScores.Count; i++)
-                {
-                    int index = leaderboardUserdata.scores.IndexOf(sortedScores[i]);
+            for (int i = 0; i < sortedScores.Count && i < playersScores.Count; i++)
+            {
+                int index = leaderboardUserdata.scores.IndexOf(sortedScores[i]);
 
-                    TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
-                    TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
-                    TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
+                TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
+                TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
 
-                    usernameText.text = leaderboardUserdata.usernames[index];
-                    scoreText.text = leaderboardUserdata.scores[index].ToString();
-                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                usernameText.text = leaderboardUserdata.usernames[index];
+                scoreText.text = leaderboardUserdata.scores[index].ToString();
+                dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
-                    reverse = false;
-
-                    scoreArrow.transform.rotation = new Quaternion(0,0,0,0);
-
-                    scoreArrow.gameObject.SetActive(true);
-                    dateArrow.gameObject.SetActive(false);
-                    usernameArrow.gameObject.SetActive(false);
-                }
+                scoreArrow.gameObject.SetActive(true);
+                dateArrow.gameObject.SetActive(false);
+                usernameArrow.gameObject.SetActive(false);
             }
         }
         else
         {
+            var sortedByDate = leaderboardUserdata.dates.Select((date, index) => new { Date = date, Index = index }).OrderByDescending(entry => entry.Date).ToList();
+            dateArrow.transform.rotation = new Quaternion(0, 0, 0, 0);
+
             if (!reverse)
             {
-                var sortedByDate = leaderboardUserdata.dates.Select((date, index) => new { Date = date, Index = index }).OrderBy(entry => entry.Date).ToList();
-
-                for (int i = 0; i < sortedByDate.Count && i < playersScores.Count; i++)
-                {
-                    int index = sortedByDate[i].Index; 
-
-                    TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
-                    TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
-                    TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
-
-                    usernameText.text = leaderboardUserdata.usernames[index];
-                    scoreText.text = leaderboardUserdata.scores[index].ToString();
-                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
-
-                    reverse = true;
-
-                    dateArrow.transform.rotation = new Quaternion(180,0,0,0);
-
-                    dateArrow.gameObject.SetActive(true);
-                    usernameArrow.gameObject.SetActive(false);
-                    scoreArrow.gameObject.SetActive(false);
-                }
+                sortedByDate = leaderboardUserdata.dates.Select((date, index) => new { Date = date, Index = index }).OrderBy(entry => entry.Date).ToList();
+                dateArrow.transform.rotation = new Quaternion(180, 0, 0, 0);
+                reverse = true;
             }
             else
             {
-                var sortedByDate = leaderboardUserdata.dates.Select((date, index) => new { Date = date, Index = index }).OrderByDescending(entry => entry.Date).ToList();
+                reverse = false;
+            }
 
-                for (int i = 0; i < sortedByDate.Count && i < playersScores.Count; i++)
-                {
-                    int index = sortedByDate[i].Index; 
+            for (int i = 0; i < sortedByDate.Count && i < playersScores.Count; i++)
+            {
+                int index = sortedByDate[i].Index;
 
-                    TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
-                    TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
-                    TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
+                TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
+                TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
+                TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
 
-                    usernameText.text = leaderboardUserdata.usernames[index];
-                    scoreText.text = leaderboardUserdata.scores[index].ToString();
-                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                usernameText.text = leaderboardUserdata.usernames[index];
+                scoreText.text = leaderboardUserdata.scores[index].ToString();
+                dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
 
-                    reverse = false;
-
-                    dateArrow.transform.rotation = new Quaternion(0,0,0,0);
-
-                    dateArrow.gameObject.SetActive(true);
-                    usernameArrow.gameObject.SetActive(false);
-                    scoreArrow.gameObject.SetActive(false);
-                }
+                dateArrow.gameObject.SetActive(true);
+                usernameArrow.gameObject.SetActive(false);
+                scoreArrow.gameObject.SetActive(false);
             }
         }
     }
@@ -344,4 +286,7 @@ public class LeaderboardUserdata
     public List<string> usernames { get; set; } = new List<string>();
     public List<int> scores { get; set; } = new List<int>();
     public List<DateTime> dates { get; set; } = new List<DateTime>();
+    public List<string> monthlyUsernames { get; set; } = new List<string>();
+    public List<int> monthlyScores { get; set; } = new List<int>();
+    public List<DateTime> monthlyDates { get; set; } = new List<DateTime>();
 }

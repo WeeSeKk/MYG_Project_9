@@ -307,6 +307,38 @@ public class DatabaseManager : MonoBehaviour
             return null;
         }
     }
+
+    public async Task<List<BsonDocument>> GetMonthlyLeaderboardDatasNOSQL()
+    {
+        var collection = database.GetCollection<BsonDocument>("Leaderboard");
+        int limit = 10;
+
+        try
+        {
+            var now = DateTime.UtcNow;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var startOfNextMonth = startOfMonth.AddMonths(1);
+
+            var filter = Builders<BsonDocument>.Filter.And(
+                Builders<BsonDocument>.Filter.Gte("dateofscore", startOfMonth),
+                Builders<BsonDocument>.Filter.Lt("dateofscore", startOfNextMonth)
+            );
+
+            var sort = Builders<BsonDocument>.Sort.Descending("score");
+            var topScores = await collection
+                .Find(filter)
+                .Sort(sort)
+                .Limit(limit)
+                .ToListAsync();
+
+            return topScores;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error fetching monthly top scores: {ex.Message}");
+            return null;
+        }
+    }
     #endregion
 
     #region SQL
