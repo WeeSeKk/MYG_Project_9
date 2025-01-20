@@ -1073,6 +1073,8 @@ MonoBehaviour:
   databaseConnectionText: {fileID: 2101057060}
   databaseConnectionButtons: {fileID: 205664740}
   retryConnectionButton: {fileID: 2035384937}
+  showAllButton: {fileID: 1745631922}
+  showMonthlyButton: {fileID: 1878981071}
 --- !u!1001 &69498586
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10697,7 +10699,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &378126185
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28418,7 +28420,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1120160555
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44568,35 +44570,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 65076299}
         m_TargetAssemblyTypeName: IHMManager, Assembly-CSharp
-        m_MethodName: ShowLeaderboard
-        m_Mode: 1
+        m_MethodName: MonthlyOrAllLeaderboard
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 748504525}
-        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: StartGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 65076299}
-        m_TargetAssemblyTypeName: IHMManager, Assembly-CSharp
-        m_MethodName: ShowScoreCount
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1745631922}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -48549,35 +48527,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 65076299}
         m_TargetAssemblyTypeName: IHMManager, Assembly-CSharp
-        m_MethodName: ShowLeaderboard
-        m_Mode: 1
+        m_MethodName: MonthlyOrAllLeaderboard
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 748504525}
-        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
-        m_MethodName: StartGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 65076299}
-        m_TargetAssemblyTypeName: IHMManager, Assembly-CSharp
-        m_MethodName: ShowScoreCount
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 1878981071}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

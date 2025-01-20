@@ -25,9 +25,12 @@ public class IHMManager : MonoBehaviour
     [SerializeField] TMP_Text databaseConnectionText;
     [SerializeField] GameObject databaseConnectionButtons;
     [SerializeField] Button retryConnectionButton;
+    [SerializeField] Button showAllButton;
+    [SerializeField] Button showMonthlyButton;
     LeaderboardUserdata leaderboardUserdata = new LeaderboardUserdata();
     public static IHMManager instance;
     bool reverse;
+    bool monthly = false;
 
     void Awake()
     {
@@ -45,6 +48,25 @@ public class IHMManager : MonoBehaviour
     {
         EventManager.gameOver += GameOverScreen;
         EventManager.resetGame += ResetGame;
+        showAllButton.interactable = false;
+    }
+
+    public void MonthlyOrAllLeaderboard(Button button)
+    {
+        if (button == showMonthlyButton)
+        {
+            monthly = true;
+            ShowLeaderboardDatas("Scores");
+            showMonthlyButton.interactable = false;
+            showAllButton.interactable = true;
+        }
+        else
+        {
+            monthly = false;
+            ShowLeaderboardDatas("Scores");
+            showMonthlyButton.interactable = true;
+            showAllButton.interactable = false;
+        }
     }
 
     public void ShowScoreCount()
@@ -124,6 +146,11 @@ public class IHMManager : MonoBehaviour
     {
         var currentUserDatas = await DatabaseManager.instance.CheckUserInLeaderboard(DatabaseManager.instance.currentUsername);
 
+        if (currentUserDatas == null)
+        {
+            return;
+        }
+
         TMP_Text usernameText = currentUserScore.transform.GetChild(0).GetComponent<TMP_Text>();
         TMP_Text scoreText = currentUserScore.transform.GetChild(1).GetComponent<TMP_Text>();
         TMP_Text dateText = currentUserScore.transform.GetChild(2).GetComponent<TMP_Text>();
@@ -144,18 +171,36 @@ public class IHMManager : MonoBehaviour
             leaderboardUserdata.dates.Add(score.Contains("dateofscore") ? score["dateofscore"].ToUniversalTime() : DateTime.MinValue);
         }
 
+        var topMonthlyScores = await DatabaseManager.instance.GetMonthlyLeaderboardDatasNOSQL();
+
+        foreach (var score in topMonthlyScores)
+        {
+            leaderboardUserdata.monthlyUsernames.Add(score.Contains("username") ? score["username"].AsString : "Unknown");
+            leaderboardUserdata.monthlyScores.Add(score.Contains("score") ? score["score"].AsInt32 : 0);
+            leaderboardUserdata.monthlyDates.Add(score.Contains("dateofscore") ? score["dateofscore"].ToUniversalTime() : DateTime.MinValue);
+        }
+
         ShowLeaderboardDatas("Scores");
     }
 
     public async Task RequestLeaderboardDatasSQL()
     {
-        JArray jArray = await DatabaseManager.instance.GetLeaderboardDatasSQL();
+        JArray leaderboard = await DatabaseManager.instance.GetLeaderboardDatasSQL();
 
-        foreach (JObject keys in jArray)
+        foreach (JObject keys in leaderboard)
         {
             leaderboardUserdata.usernames.Add((string)keys.GetValue("username"));
             leaderboardUserdata.scores.Add((int)keys.GetValue("score"));
             leaderboardUserdata.dates.Add(Convert.ToDateTime(keys.GetValue("dateofscore")));
+        }
+
+        JArray monthlyLeaderboard = await DatabaseManager.instance.GetMonthlyLeaderboardDatasSQL();
+
+        foreach (JObject keys in monthlyLeaderboard)
+        {
+            leaderboardUserdata.monthlyUsernames.Add((string)keys.GetValue("username"));
+            leaderboardUserdata.monthlyScores.Add((int)keys.GetValue("score"));
+            leaderboardUserdata.monthlyDates.Add(Convert.ToDateTime(keys.GetValue("dateofscore")));
         }
 
         ShowLeaderboardDatas("Scores");
@@ -177,16 +222,29 @@ public class IHMManager : MonoBehaviour
         }
     }
 
-    public void ShowLeaderboardDatas(string type)
+    public void ShowLeaderboardDatas(string type)// please be mercyfull when you see this monster
     {
+        CleanLeaderboard();
+
         if (type == "Usernames")
         {
             var sortedUsernames = leaderboardUserdata.usernames.OrderByDescending(name => name).ToList();
             usernameArrow.transform.rotation = new Quaternion(180, 0, 0, 0);
 
+            if (monthly)
+            {
+                sortedUsernames = leaderboardUserdata.monthlyUsernames.OrderByDescending(name => name).ToList();
+            }
+
             if (!reverse)
             {
                 sortedUsernames = leaderboardUserdata.usernames.OrderBy(name => name).ToList();
+
+                if (monthly)
+                {
+                    sortedUsernames = leaderboardUserdata.monthlyUsernames.OrderBy(name => name).ToList();
+                }
+
                 usernameArrow.transform.rotation = new Quaternion(0, 0, 0, 0);
                 reverse = true;
             }
@@ -199,14 +257,26 @@ public class IHMManager : MonoBehaviour
             {
                 int index = leaderboardUserdata.usernames.IndexOf(sortedUsernames[i]);
 
+                if (monthly)
+                    index = leaderboardUserdata.monthlyUsernames.IndexOf(sortedUsernames[i]);
+
                 TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
                 TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
                 TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
 
-                usernameText.text = leaderboardUserdata.usernames[index];
-                scoreText.text = leaderboardUserdata.scores[index].ToString();
-                dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
-
+                if (monthly)
+                {
+                    usernameText.text = leaderboardUserdata.monthlyUsernames[index];
+                    scoreText.text = leaderboardUserdata.monthlyScores[index].ToString();
+                    dateText.text = leaderboardUserdata.monthlyDates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                }
+                else
+                {
+                    usernameText.text = leaderboardUserdata.usernames[index];
+                    scoreText.text = leaderboardUserdata.scores[index].ToString();
+                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                }
+                
                 usernameArrow.gameObject.SetActive(true);
                 scoreArrow.gameObject.SetActive(false);
                 dateArrow.gameObject.SetActive(false);
@@ -217,9 +287,20 @@ public class IHMManager : MonoBehaviour
             var sortedScores = leaderboardUserdata.scores.OrderByDescending(score => score).ToList();
             scoreArrow.transform.rotation = new Quaternion(0, 0, 0, 0);
 
+            if (monthly)
+            {
+                sortedScores = leaderboardUserdata.monthlyScores.OrderByDescending(score => score).ToList();
+            }
+
             if (!reverse)
             {
                 sortedScores = leaderboardUserdata.scores.OrderBy(score => score).ToList();
+
+                if (monthly)
+                {
+                    sortedScores = leaderboardUserdata.monthlyScores.OrderBy(score => score).ToList();
+                }
+
                 scoreArrow.transform.rotation = new Quaternion(180, 0, 0, 0);
                 reverse = true;
             }
@@ -232,13 +313,25 @@ public class IHMManager : MonoBehaviour
             {
                 int index = leaderboardUserdata.scores.IndexOf(sortedScores[i]);
 
+                if (monthly)
+                    index = leaderboardUserdata.monthlyScores.IndexOf(sortedScores[i]);
+
                 TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
                 TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
                 TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
 
-                usernameText.text = leaderboardUserdata.usernames[index];
-                scoreText.text = leaderboardUserdata.scores[index].ToString();
-                dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                if (monthly)
+                {
+                    usernameText.text = leaderboardUserdata.monthlyUsernames[index];
+                    scoreText.text = leaderboardUserdata.monthlyScores[index].ToString();
+                    dateText.text = leaderboardUserdata.monthlyDates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                }
+                else
+                {
+                    usernameText.text = leaderboardUserdata.usernames[index];
+                    scoreText.text = leaderboardUserdata.scores[index].ToString();
+                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                }
 
                 scoreArrow.gameObject.SetActive(true);
                 dateArrow.gameObject.SetActive(false);
@@ -250,9 +343,20 @@ public class IHMManager : MonoBehaviour
             var sortedByDate = leaderboardUserdata.dates.Select((date, index) => new { Date = date, Index = index }).OrderByDescending(entry => entry.Date).ToList();
             dateArrow.transform.rotation = new Quaternion(0, 0, 0, 0);
 
+            if (monthly)
+            {
+                sortedByDate = leaderboardUserdata.monthlyDates.Select((date, index) => new { Date = date, Index = index }).OrderByDescending(entry => entry.Date).ToList();
+            }
+
             if (!reverse)
             {
                 sortedByDate = leaderboardUserdata.dates.Select((date, index) => new { Date = date, Index = index }).OrderBy(entry => entry.Date).ToList();
+
+                if (monthly)
+                {
+                    sortedByDate = leaderboardUserdata.monthlyDates.Select((date, index) => new { Date = date, Index = index }).OrderBy(entry => entry.Date).ToList();
+                }
+
                 dateArrow.transform.rotation = new Quaternion(180, 0, 0, 0);
                 reverse = true;
             }
@@ -269,14 +373,37 @@ public class IHMManager : MonoBehaviour
                 TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
                 TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
 
-                usernameText.text = leaderboardUserdata.usernames[index];
-                scoreText.text = leaderboardUserdata.scores[index].ToString();
-                dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                if (monthly)
+                {
+                    usernameText.text = leaderboardUserdata.monthlyUsernames[index];
+                    scoreText.text = leaderboardUserdata.monthlyScores[index].ToString();
+                    dateText.text = leaderboardUserdata.monthlyDates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                }
+                else
+                {
+                    usernameText.text = leaderboardUserdata.usernames[index];
+                    scoreText.text = leaderboardUserdata.scores[index].ToString();
+                    dateText.text = leaderboardUserdata.dates[index].ToString().Substring(0, leaderboardUserdata.dates[index].ToString().Length - 9);
+                }
 
                 dateArrow.gameObject.SetActive(true);
                 usernameArrow.gameObject.SetActive(false);
                 scoreArrow.gameObject.SetActive(false);
             }
+        }
+    }
+
+    void CleanLeaderboard()
+    {
+        for (int i = 0; i < playersScores.Count; i++)
+        {
+            TMP_Text usernameText = playersScores[i].transform.GetChild(0).GetComponent<TMP_Text>();
+            TMP_Text scoreText = playersScores[i].transform.GetChild(1).GetComponent<TMP_Text>();
+            TMP_Text dateText = playersScores[i].transform.GetChild(2).GetComponent<TMP_Text>();
+
+            usernameText.text = "";
+            scoreText.text = "";
+            dateText.text = "";
         }
     }
 }

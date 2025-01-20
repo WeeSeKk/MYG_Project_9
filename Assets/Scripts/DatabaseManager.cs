@@ -100,7 +100,7 @@ public class DatabaseManager : MonoBehaviour
 
     public async void SyncDatabases(string username, string password)
     {
-        if (sql)
+        if (!sql)
         {
             List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
             formData.Add(new MultipartFormDataSection("action", "register"));
@@ -345,6 +345,42 @@ public class DatabaseManager : MonoBehaviour
     public async Task<JArray> GetLeaderboardDatasSQL()
     {
         string url = "http://localhost/MYG9/index.php?leaderboard=get";
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            var operation = webRequest.SendWebRequest();
+
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            string[] pages = url.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    return null;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    return null;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    break;
+            }
+
+            JArray jArray = JArray.Parse(webRequest.downloadHandler.text);
+
+            return jArray;
+        }
+    }
+
+    public async Task<JArray> GetMonthlyLeaderboardDatasSQL()
+    {
+        string url = "http://localhost/MYG9/index.php?monthlyleaderboard=get";
 
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
