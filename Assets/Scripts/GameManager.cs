@@ -1,5 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
+using Database;
+using IHM;
 
 public class GameManager : MonoBehaviour
 {
