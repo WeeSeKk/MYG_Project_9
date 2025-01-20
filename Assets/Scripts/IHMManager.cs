@@ -11,7 +11,8 @@ public class IHMManager : MonoBehaviour
 {
     [SerializeField] GameObject gameOverScreenUI;
     [SerializeField] GameObject lobbyUI;
-    [SerializeField] GameObject LeaderboardUI;
+    [SerializeField] GameObject leaderboardUI;
+    [SerializeField] GameObject databaseChoiceUI;
     [SerializeField] GameObject scoreCountGO;
     [SerializeField] TMP_InputField usernameInputField;
     [SerializeField] TMP_InputField passwordInputField;
@@ -21,6 +22,9 @@ public class IHMManager : MonoBehaviour
     [SerializeField] Image scoreArrow;
     [SerializeField] Image dateArrow;
     [SerializeField] TMP_Text scoreCount;
+    [SerializeField] TMP_Text databaseConnectionText;
+    [SerializeField] GameObject databaseConnectionButtons;
+    [SerializeField] Button retryConnectionButton;
     LeaderboardUserdata leaderboardUserdata = new LeaderboardUserdata();
     public static IHMManager instance;
     bool reverse;
@@ -55,19 +59,36 @@ public class IHMManager : MonoBehaviour
         }
     }
 
+    public void DatabaseConnectionUI(bool connected)
+    {
+        if (!connected)
+        {
+            databaseConnectionText.text = "no internet connection";
+            retryConnectionButton.gameObject.SetActive(true);
+            databaseConnectionButtons.gameObject.SetActive(false);
+        }
+        else
+        {
+            databaseConnectionText.text = "connected";
+            retryConnectionButton.gameObject.SetActive(false);
+            databaseConnectionButtons.gameObject.SetActive(true);
+        }
+    }
+
+    public void ShowLoginUI()
+    {
+        lobbyUI.SetActive(true);
+        databaseChoiceUI.SetActive(false);
+    }
+
     public void UpdateScoreCount(int score)
     {
         scoreCount.text = "Score : " + score;
     }
 
-    public void OnLoginClicked()
+    public void OnLoginRegisterClicked(bool register)
     {
-        DatabaseManager.instance.OnLogin(usernameInputField.text, passwordInputField.text);
-    }
-
-    public void OnRegisterClicked()
-    {
-        DatabaseManager.instance.OnRegister(usernameInputField.text, passwordInputField.text);
+        DatabaseManager.instance.LoginRegister(register, usernameInputField.text, passwordInputField.text);
     }
 
     void GameOverScreen()
@@ -83,17 +104,17 @@ public class IHMManager : MonoBehaviour
     public void CloseLobbyUI()
     {
         lobbyUI.SetActive(false);
-        LeaderboardUI.SetActive(true);
+        leaderboardUI.SetActive(true);
     }
 
     public void ShowLeaderboard()
     {
-        if (LeaderboardUI.gameObject.activeSelf == true) {
-            LeaderboardUI.SetActive(false);
+        if (leaderboardUI.gameObject.activeSelf == true) {
+            leaderboardUI.SetActive(false);
         }
         else {
             gameOverScreenUI.SetActive(false);
-            LeaderboardUI.SetActive(true);
+            leaderboardUI.SetActive(true);
         }
     }
 
@@ -130,9 +151,9 @@ public class IHMManager : MonoBehaviour
 
         foreach (JObject keys in jArray)
         {
-            leaderboardUserdata.usernames.Add((string)keys.GetValue("user"));
+            leaderboardUserdata.usernames.Add((string)keys.GetValue("username"));
             leaderboardUserdata.scores.Add((int)keys.GetValue("score"));
-            leaderboardUserdata.dates.Add((DateTime)keys.GetValue("dateofscore"));
+            leaderboardUserdata.dates.Add(Convert.ToDateTime(keys.GetValue("dateofscore")));
         }
 
         ShowLeaderboardDatas("Scores");
@@ -148,11 +169,9 @@ public class IHMManager : MonoBehaviour
 
         foreach (JObject keys in jArray)
         {
-            usernameText.text = (string)keys.GetValue("user");
+            usernameText.text = (string)keys.GetValue("username");
             scoreText.text = (string)keys.GetValue("score");
-            string date = (string)keys.GetValue("dateofscore");
-            date.Substring(0, date.Length - 9);
-            dateText.text = date;
+            dateText.text = Convert.ToDateTime(keys.GetValue("dateofscore")).ToString().Substring(0, Convert.ToDateTime(keys.GetValue("dateofscore")).ToString().Length - 9);
         }
     }
 

@@ -86,5 +86,6 @@ public class GameManager : MonoBehaviour
         playerRigidbody.useGravity = false;
         DOTween.Clear();
         await DatabaseManager.instance.UpdatePlayerScore(score);
+        await DatabaseManager.instance.UpdatePlayerScoreSQL(score);
     }
 }
