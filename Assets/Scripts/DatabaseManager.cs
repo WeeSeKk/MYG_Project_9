@@ -210,10 +210,10 @@ namespace Database
             }
 
             var newUser = new BsonDocument
-        {
-            { "username", username },
-            { "password", passwordHash }
-        };
+            {
+                { "username", username },
+                { "password", passwordHash }
+            };
 
             await collection.InsertOneAsync(newUser);
             Debug.Log("User registered successfully!");

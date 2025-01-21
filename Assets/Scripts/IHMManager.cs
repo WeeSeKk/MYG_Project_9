@@ -30,6 +30,7 @@ namespace IHM
         [SerializeField] TMP_Text errorMessage;
         [SerializeField] TMP_Text databaseConnectionText;
         [SerializeField] GameObject databaseConnectionButtons;
+        [SerializeField] GameObject jumpButtonAndroid;
         [SerializeField] Button retryConnectionButton;
         [SerializeField] Button showAllButton;
         [SerializeField] Button showMonthlyButton;
@@ -86,10 +87,12 @@ namespace IHM
             if (scoreCountGO.activeSelf == false)
             {
                 scoreCountGO.SetActive(true);
+                jumpButtonAndroid.SetActive(true);
             }
             else
             {
                 scoreCountGO.SetActive(false);
+                jumpButtonAndroid.SetActive(false);
             }
         }
 
