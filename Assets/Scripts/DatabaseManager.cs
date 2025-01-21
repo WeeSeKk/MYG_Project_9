@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using System;
 using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
-using BCrypt.Net;
-using BCrypt;
 using IHM;
 
 namespace Database
@@ -113,25 +111,11 @@ namespace Database
 
                 UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
                 await www.SendWebRequest();
-
-                JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
-                string resultString = "";
-                foreach (var key in jsonResponse)
-                {
-                    resultString += $"{key.Key}: {key.Value}\n";
-                }
-
-                if (resultString.Contains("Success: True"))
-                {
-                    //SQL Sync
-                }
-                else
-                {
-                    //error
-                }
             }
             else
             {
+                string passwordHash = BCrypt.Net.BCrypt.HashPassword(password, 13);
+
                 var collection = database.GetCollection<BsonDocument>("Users");
 
                 if (collection == null)
@@ -145,14 +129,16 @@ namespace Database
 
                 if (existingUser != null)
                 {
+                    Debug.LogError("Username is already taken");
+                    StartCoroutine(IHMManager.instance.ShowErrorMessages("Username is already taken."));
                     return;
                 }
 
                 var newUser = new BsonDocument
-        {
-            { "username", username },
-            { "password", password }
-        };
+                {
+                    { "username", username },
+                    { "password", passwordHash }
+                };
 
                 await collection.InsertOneAsync(newUser);
             }
@@ -160,6 +146,7 @@ namespace Database
         #endregion
 
         #region NOSQL
+
         public async void OnLogin(string username, string password)
         {
             var collection = database.GetCollection<BsonDocument>("Users");
@@ -171,30 +158,39 @@ namespace Database
             }
 
             var filter = Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.Eq("username", username),
-                Builders<BsonDocument>.Filter.Eq("password", password)
+                Builders<BsonDocument>.Filter.Eq("username", username)
             );
 
             var user = await collection.Find(filter).FirstOrDefaultAsync();
 
             if (user != null)
             {
-                Debug.Log("User found, login successful!");
-                currentUsername = username;
-                await IHMManager.instance.RequestLeaderboardDatasNOSQL();
-                await IHMManager.instance.AddCurrentUserOnLeaderboardNOSQL();
-                IHMManager.instance.ShowLeaderboardDatas("Scores");
-                IHMManager.instance.CloseLobbyUI();
+                string passwordHash = user.Contains("password") ? user["password"].AsString : "password";
+
+                if (BCrypt.Net.BCrypt.Verify(password, passwordHash))
+                {
+                    currentUsername = username;
+                    await IHMManager.instance.RequestLeaderboardDatasNOSQL();
+                    await IHMManager.instance.AddCurrentUserOnLeaderboardNOSQL();
+                    IHMManager.instance.ShowLeaderboardDatas("Scores");
+                    IHMManager.instance.CloseLobbyUI();
+                }
+                else
+                {
+                    StartCoroutine(IHMManager.instance.ShowErrorMessages("Invalid password."));
+                }
             }
             else
             {
-                Debug.LogError("Invalid username or password.");
-                //call IHMManager
+                StartCoroutine(IHMManager.instance.ShowErrorMessages("Invalid username."));
+                Debug.LogError("Invalid username");
             }
         }
 
         public async void OnRegister(string username, string password)
         {
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(password, 13);
+
             var collection = database.GetCollection<BsonDocument>("Users");
 
             if (collection == null)
@@ -209,14 +205,14 @@ namespace Database
             if (existingUser != null)
             {
                 Debug.LogError("Username is already taken");
-                //call IHMManager
+                StartCoroutine(IHMManager.instance.ShowErrorMessages("Username is already taken."));
                 return;
             }
 
             var newUser = new BsonDocument
         {
             { "username", username },
-            { "password", password }
+            { "password", passwordHash }
         };
 
             await collection.InsertOneAsync(newUser);
@@ -479,12 +475,11 @@ namespace Database
                 await IHMManager.instance.AddCurrentUserOnLeaderboardSQL();
                 IHMManager.instance.ShowLeaderboardDatas("Scores");
                 IHMManager.instance.CloseLobbyUI();
-                //loged in
             }
             else
             {
                 Debug.Log(www.downloadHandler.text);
-                //error
+                StartCoroutine(IHMManager.instance.ShowErrorMessages("Invalid username or password."));
             }
         }
 
@@ -507,7 +502,6 @@ namespace Database
 
             if (resultString.Contains("Success: True"))
             {
-                //registered
                 Debug.Log(www.downloadHandler.text);
                 OnLoginSQL(username, password);
                 SyncDatabases(username, password);
@@ -515,7 +509,7 @@ namespace Database
             else
             {
                 Debug.Log(www.downloadHandler.text);
-                //error
+                StartCoroutine(IHMManager.instance.ShowErrorMessages("Username is already taken."));
             }
 
             //Debug.Log(www.downloadHandler.text);

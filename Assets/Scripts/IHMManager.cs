@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Database;
+using System.Collections;
 
 namespace IHM
 {
@@ -26,6 +27,7 @@ namespace IHM
         [SerializeField] Image scoreArrow;
         [SerializeField] Image dateArrow;
         [SerializeField] TMP_Text scoreCount;
+        [SerializeField] TMP_Text errorMessage;
         [SerializeField] TMP_Text databaseConnectionText;
         [SerializeField] GameObject databaseConnectionButtons;
         [SerializeField] Button retryConnectionButton;
@@ -52,6 +54,13 @@ namespace IHM
             EventManager.gameOver += GameOverScreen;
             EventManager.resetGame += ResetGame;
             showAllButton.interactable = false;
+        }
+
+        public IEnumerator ShowErrorMessages(string message)
+        {
+            errorMessage.text = message;
+            yield return new WaitForSeconds(3f);
+            errorMessage.text = "";
         }
 
         public void MonthlyOrAllLeaderboard(Button button)
