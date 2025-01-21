@@ -12,6 +12,7 @@ public class PlayerManager : MonoBehaviour
         EventManager.gameOver += GameOver;
         EventManager.gameStart += ResetGame;
         EventManager.resetGame += ResetGame;
+        EventManager.jump += Jump;
     }
 
     // Update is called once per frame
@@ -21,6 +22,11 @@ public class PlayerManager : MonoBehaviour
         {
             _rigidbody.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         }
+    }
+
+    void Jump()
+    {
+        _rigidbody.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
     void OnCollisionEnter(Collision other)

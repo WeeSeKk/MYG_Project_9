@@ -11,6 +11,7 @@ public class EventManager : MonoBehaviour
     public static event Action gameStart;
     public static event Action resetGame;
     public static event Action scroreUP;
+    public static event Action jump;
 
     void Awake()
     {
@@ -43,5 +44,10 @@ public class EventManager : MonoBehaviour
     public static void ResetGame()
     {
         resetGame?.Invoke();
+    }
+
+    public static void Jump()
+    {
+        jump?.Invoke();
     }
 }
