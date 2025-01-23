@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject cylinder;
     Quaternion quaternion;
     public static GameManager instance;
-    int targetFrameRate = 165;
+    int targetFrameRate = 60;
     int score;
 
     void Awake()
