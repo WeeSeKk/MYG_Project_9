@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "MYG_Project_9.sln"
+    "dotnet.defaultSolution": "MYG_Project_9_Android.sln"
 }
