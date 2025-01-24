@@ -50,6 +50,11 @@ namespace IHM
             }
         }
 
+        public void Test()
+        {
+            Debug.Log("BUTTON");
+        }
+
         void Start()
         {
             EventManager.gameOver += GameOverScreen;

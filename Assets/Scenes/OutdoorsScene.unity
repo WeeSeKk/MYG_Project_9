@@ -14219,6 +14219,50 @@ Transform:
   - {fileID: 1448099577}
   m_Father: {fileID: 1642340677}
   m_LocalEulerAnglesHint: {x: -17.339, y: 98.011, z: 61.677}
+--- !u!1 &508125553
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 508125554}
+  - component: {fileID: 508125555}
+  m_Layer: 0
+  m_Name: EventManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &508125554
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508125553}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 682879380}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &508125555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508125553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bf47a6c2eb79d441a74acc91f49ec09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &511896977
 GameObject:
   m_ObjectHideFlags: 0
@@ -17399,7 +17443,6 @@ GameObject:
   - component: {fileID: 643838805}
   - component: {fileID: 643838804}
   - component: {fileID: 643838803}
-  - component: {fileID: 643838806}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -17457,18 +17500,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &643838806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 643838802}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bf47a6c2eb79d441a74acc91f49ec09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &648195298
 GameObject:
   m_ObjectHideFlags: 0
@@ -18425,6 +18456,7 @@ Transform:
   - {fileID: 748504524}
   - {fileID: 65076298}
   - {fileID: 1625249905}
+  - {fileID: 508125554}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &691425058
@@ -53153,7 +53185,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 643838806}
+      - m_Target: {fileID: 508125555}
         m_TargetAssemblyTypeName: EventManager, FlappyAssembly
         m_MethodName: Jump
         m_Mode: 1

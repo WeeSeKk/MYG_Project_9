@@ -20,7 +20,6 @@ public class EventManager : MonoBehaviour
         {
             instance = this;
         }
-        DontDestroyOnLoad(this.gameObject);
     }
 
     public static void GameOver()

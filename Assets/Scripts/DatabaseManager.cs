@@ -109,7 +109,7 @@ namespace Database
                 formData.Add(new MultipartFormDataSection("username", username));
                 formData.Add(new MultipartFormDataSection("password", password));
 
-                UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
+                UnityWebRequest www = UnityWebRequest.Post("https://weesek.ddns.net/MYG9/insert.php", formData);
                 await www.SendWebRequest();
             }
             else
@@ -210,10 +210,10 @@ namespace Database
             }
 
             var newUser = new BsonDocument
-            {
-                { "username", username },
-                { "password", passwordHash }
-            };
+        {
+            { "username", username },
+            { "password", passwordHash }
+        };
 
             await collection.InsertOneAsync(newUser);
             Debug.Log("User registered successfully!");
@@ -344,7 +344,7 @@ namespace Database
         #region SQL
         public async Task<JArray> GetLeaderboardDatasSQL()
         {
-            string url = "http://localhost/MYG9/index.php?leaderboard=get";
+            string url = "https://weesek.ddns.net/MYG9/index.php?leaderboard=get";
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
@@ -380,7 +380,7 @@ namespace Database
 
         public async Task<JArray> GetMonthlyLeaderboardDatasSQL()
         {
-            string url = "http://localhost/MYG9/index.php?monthlyleaderboard=get";
+            string url = "https://weesek.ddns.net/MYG9/index.php?monthlyleaderboard=get";
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
@@ -416,7 +416,7 @@ namespace Database
 
         public async Task<JArray> CheckUserInLeaderboardSQL()
         {
-            string url = "http://localhost/MYG9/index.php?currentuser=" + currentUsername;
+            string url = "https://weesek.ddns.net/MYG9/index.php?currentuser=" + currentUsername;
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
@@ -457,7 +457,7 @@ namespace Database
             formData.Add(new MultipartFormDataSection("username", username));
             formData.Add(new MultipartFormDataSection("password", password));
 
-            UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
+            UnityWebRequest www = UnityWebRequest.Post("https://weesek.ddns.net/MYG9/insert.php", formData);
             await www.SendWebRequest();
 
             JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
@@ -490,7 +490,7 @@ namespace Database
             formData.Add(new MultipartFormDataSection("username", username));
             formData.Add(new MultipartFormDataSection("password", password));
 
-            UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
+            UnityWebRequest www = UnityWebRequest.Post("https://weesek.ddns.net/MYG9/insert.php", formData);
             await www.SendWebRequest();
 
             JObject jsonResponse = JObject.Parse(www.downloadHandler.text);
@@ -523,7 +523,7 @@ namespace Database
             formData.Add(new MultipartFormDataSection("score", newScore.ToString()));
             formData.Add(new MultipartFormDataSection("dateofscore", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")));
 
-            UnityWebRequest www = UnityWebRequest.Post("http://localhost/MYG9/insert.php", formData);
+            UnityWebRequest www = UnityWebRequest.Post("https://weesek.ddns.net/MYG9/insert.php", formData);
             await www.SendWebRequest();
 
             JArray jsonResponse = JArray.Parse(www.downloadHandler.text);
