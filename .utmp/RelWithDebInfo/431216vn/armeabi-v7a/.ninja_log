@@ -1,10 +1,19 @@
 # ninja log v5
 18	2413	7593256017914681	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	2c69a0928121b4ac
+30	2508	7593256018929704	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	64eb1fa064acd1f8
 1	2449	7593256018236080	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	8e4228fbbbce0c9
+10	2563	7593256019462468	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	ed8790f47bdaa193
 25	2450	7593256018225765	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	aead907b827b8d8d
 14	2504	7593256018878082	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	4bf0327aedc63844
-30	2508	7593256018929704	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	64eb1fa064acd1f8
-10	2563	7593256019462468	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	ed8790f47bdaa193
 22	2711	7593256020883371	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	9accf2564953767b
 6	2829	7593256022033775	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	aec98f00dd16dfa5
 2830	2979	7593256023601063	D:/Unity Projects/MYG_Project_9_Android/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/431216vn/obj/armeabi-v7a/libgame.so	1134d38e3665f19
+143	2622	7594105204928185	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	2c69a0928121b4ac
+55	2630	7594105205027795	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	8e4228fbbbce0c9
+147	2641	7594105205120512	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	aead907b827b8d8d
+137	2652	7594105205246787	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	4bf0327aedc63844
+156	2690	7594105205649027	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	64eb1fa064acd1f8
+50	2749	7594105206247678	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	ed8790f47bdaa193
+151	2934	7594105208100755	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	9accf2564953767b
+13	3037	7594105209089370	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	aec98f00dd16dfa5
+3037	3219	7594105210959129	D:/Unity Projects/MYG_Project_9_Android/Library/Bee/Android/Prj/Mono2x/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/431216vn/obj/armeabi-v7a/libgame.so	1134d38e3665f19
