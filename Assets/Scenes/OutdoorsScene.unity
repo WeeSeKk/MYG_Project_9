@@ -53001,8 +53001,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1625249906}
-        m_TargetAssemblyTypeName: DatabaseManager, Assembly-CSharp
-        m_MethodName: ConnectToMongoDB
+        m_TargetAssemblyTypeName: Database.DatabaseManager, FlappyAssembly
+        m_MethodName: RetryConnection
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
