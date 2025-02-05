@@ -34,29 +34,33 @@ namespace Database
 
         void Start()
         {
-            ConnectToMongoDB();
+            RetryConnection();
         }
 
-        public void ConnectToMongoDB()
+        public void RetryConnection()
         {
-            try
-            {
-                string connectionString = "mongodb://weesekk:2zmqnh0FQW74CnPd@cluster0-shard-00-00.5zx1h.mongodb.net:27017,cluster0-shard-00-01.5zx1h.mongodb.net:27017,cluster0-shard-00-02.5zx1h.mongodb.net:27017/?replicaSet=atlas-cvvjrc-shard-0&authSource=admin&retryWrites=true&w=majority&tls=true";
-                client = new MongoClient(connectionString);
-                database = client.GetDatabase("MYG_Project_9");
+            TryInternetConnection();
+        }
 
-                var command = new BsonDocument("ping", 1);
-                database.RunCommand<BsonDocument>(command);
+        public async Task TryInternetConnection()
+        {
+            UnityWebRequest www = UnityWebRequest.Get("https://google.com");
+            await www.SendWebRequest();
 
-                Debug.Log("Connected to MongoDB successfully!");
-                connected = true;
-                IHMManager.instance.DatabaseConnectionUI(true);
-            }
-            catch (Exception ex)
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("Failed to connect to MongoDB: " + ex.Message);
+                Debug.LogError("Error: " + www.error);
+                Debug.LogError("Response Code: " + www.responseCode);
+                Debug.LogError("Response Body: " + www.downloadHandler.text);
+                Debug.LogError("Failed to connect to internet");
                 connected = false;
                 IHMManager.instance.DatabaseConnectionUI(false);
+            }
+            else
+            {
+                Debug.Log("Connected to internet");
+                connected = true;
+                IHMManager.instance.DatabaseConnectionUI(true);
             }
         }
 
@@ -116,227 +120,243 @@ namespace Database
             {
                 string passwordHash = BCrypt.Net.BCrypt.HashPassword(password, 13);
 
-                var collection = database.GetCollection<BsonDocument>("Users");
-
-                if (collection == null)
+                UserData newUser = new UserData
                 {
-                    Debug.LogError("Collection 'Users' not found!");
-                    return;
-                }
-
-                var filter = Builders<BsonDocument>.Filter.Eq("username", username);
-                var existingUser = await collection.Find(filter).FirstOrDefaultAsync();
-
-                if (existingUser != null)
-                {
-                    Debug.LogError("Username is already taken");
-                    StartCoroutine(IHMManager.instance.ShowErrorMessages("Username is already taken."));
-                    return;
-                }
-
-                var newUser = new BsonDocument
-                {
-                    { "username", username },
-                    { "password", passwordHash }
+                    username = username,
+                    password = passwordHash
                 };
 
-                await collection.InsertOneAsync(newUser);
+                string jsonData = JsonUtility.ToJson(newUser);
+
+                UnityWebRequest www = new UnityWebRequest("https://weesek.ddns.net/MongoDB/api/users/register", "POST");
+                byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonData);
+                www.uploadHandler = new UploadHandlerRaw(jsonToSend);
+                www.downloadHandler = new DownloadHandlerBuffer();
+                www.SetRequestHeader("Content-Type", "application/json");
+
+                await www.SendWebRequest();
+
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("Error: " + www.error);
+                    Debug.LogError("Response Code: " + www.responseCode);
+                    Debug.LogError("Response Body: " + www.downloadHandler.text);
+                }
+                else
+                {
+                    Debug.Log("User registered successfully!");
+                }
             }
         }
         #endregion
 
         #region NOSQL
-
         public async void OnLogin(string username, string password)
         {
-            var collection = database.GetCollection<BsonDocument>("Users");
-
-            if (collection == null)
+            UserData user = new UserData
             {
-                Debug.LogError("Collection 'Users' not found!");
-                return;
-            }
+                username = username,
+                password = password
+            };
 
-            var filter = Builders<BsonDocument>.Filter.And(
-                Builders<BsonDocument>.Filter.Eq("username", username)
-            );
+            string jsonData = JsonUtility.ToJson(user);
 
-            var user = await collection.Find(filter).FirstOrDefaultAsync();
+            UnityWebRequest www = new UnityWebRequest("https://weesek.ddns.net/MongoDB/api/users/login", "POST");
+            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonData);
+            www.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
 
-            if (user != null)
+            await www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                string passwordHash = user.Contains("password") ? user["password"].AsString : "password";
-
-                if (BCrypt.Net.BCrypt.Verify(password, passwordHash))
-                {
-                    currentUsername = username;
-                    await IHMManager.instance.RequestLeaderboardDatasNOSQL();
-                    await IHMManager.instance.AddCurrentUserOnLeaderboardNOSQL();
-                    IHMManager.instance.ShowLeaderboardDatas("Scores");
-                    IHMManager.instance.CloseLobbyUI();
-                }
-                else
-                {
-                    StartCoroutine(IHMManager.instance.ShowErrorMessages("Invalid password."));
-                }
+                Debug.LogError("Error: " + www.error);
+                Debug.LogError("Response Code: " + www.responseCode);
+                Debug.LogError("Response Body: " + www.downloadHandler.text);
+                StartCoroutine(IHMManager.instance.ShowErrorMessages("Invalid password or username."));
             }
             else
             {
-                StartCoroutine(IHMManager.instance.ShowErrorMessages("Invalid username."));
-                Debug.LogError("Invalid username");
+                currentUsername = username;
+                await IHMManager.instance.RequestLeaderboardDatasNOSQL();
+                await IHMManager.instance.AddCurrentUserOnLeaderboardNOSQL();
+                IHMManager.instance.ShowLeaderboardDatas("Scores");
+                IHMManager.instance.CloseLobbyUI();
+                Debug.Log("User logged in successfully!");
             }
         }
 
-        public async void OnRegister(string username, string password)
+        public async void OnRegister(string newUsername, string password)
         {
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(password, 13);
 
-            var collection = database.GetCollection<BsonDocument>("Users");
-
-            if (collection == null)
+            UserData newUser = new UserData
             {
-                Debug.LogError("Collection 'Users' not found!");
-                return;
-            }
+                username = newUsername,
+                password = passwordHash
+            };
 
-            var filter = Builders<BsonDocument>.Filter.Eq("username", username);
-            var existingUser = await collection.Find(filter).FirstOrDefaultAsync();
+            string jsonData = JsonUtility.ToJson(newUser);
 
-            if (existingUser != null)
+            UnityWebRequest www = new UnityWebRequest("https://weesek.ddns.net/MongoDB/api/users/register", "POST");
+            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonData);
+            www.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+
+            await www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("Username is already taken");
-                StartCoroutine(IHMManager.instance.ShowErrorMessages("Username is already taken."));
-                return;
+                Debug.LogError("Error: " + www.error);
+                Debug.LogError("Response Code: " + www.responseCode);
+                Debug.LogError("Response Body: " + www.downloadHandler.text);
             }
-
-            var newUser = new BsonDocument
-        {
-            { "username", username },
-            { "password", passwordHash }
-        };
-
-            await collection.InsertOneAsync(newUser);
-            Debug.Log("User registered successfully!");
-            SyncDatabases(username, password);
-            OnLogin(username, password);
+            else
+            {
+                Debug.Log("User registered successfully!");
+                SyncDatabases(newUsername, password);
+                OnLogin(newUsername, password);
+            }
         }
 
         public async Task UpdatePlayerScore(int newScore)
         {
-            var collection = database.GetCollection<BsonDocument>("Leaderboard");
-
-            var filter = Builders<BsonDocument>.Filter.Eq("username", currentUsername);
-
-            var userDocument = await collection.Find(filter).FirstOrDefaultAsync();
-
-            if (userDocument == null)
+            LeaderboardData leaderboardData = new LeaderboardData
             {
-                var newUserDocument = new BsonDocument
-            {
-                { "username", currentUsername },
-                { "score", newScore },
-                { "dateofscore", DateTime.UtcNow }
+                username = currentUsername,
+                score = newScore,
+                dateTime = DateTime.UtcNow
             };
 
-                await collection.InsertOneAsync(newUserDocument);
+            string jsonData = JsonUtility.ToJson(leaderboardData);
+
+            UnityWebRequest www = new UnityWebRequest("https://weesek.ddns.net/MongoDB/api/users/update", "POST");
+            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonData);
+            www.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+
+            await www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Error: " + www.error);
+                Debug.LogError("Response Code: " + www.responseCode);
+                Debug.LogError("Response Body: " + www.downloadHandler.text);
             }
             else
             {
-                int currentScore = userDocument["score"].AsInt32;
-
-                if (newScore > currentScore)
-                {
-                    var update = Builders<BsonDocument>.Update
-                        .Set("score", newScore)
-                        .Set("dateofscore", DateTime.UtcNow);
-
-                    await collection.UpdateOneAsync(filter, update);
-                }
-                else
-                {
-                    Debug.Log("Score in database is higher or equal NOSQL");
-                }
+                Debug.Log("Score updated successfully!");
             }
         }
 
-        public async Task<BsonDocument> CheckUserInLeaderboard(string username)
+        public async Task<JObject> CheckUserInLeaderboard(string username)
         {
-            var collection = database.GetCollection<BsonDocument>("Leaderboard");
+            string url = "https://weesek.ddns.net/MongoDB/api/users/usersdata/" + username;
 
-            var filter = Builders<BsonDocument>.Filter.Eq("username", username);
-
-            try
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
-                var userDocument = await collection.Find(filter).FirstOrDefaultAsync();
+                var operation = webRequest.SendWebRequest();
 
-                if (userDocument != null)
+                while (!operation.isDone)
                 {
-                    return userDocument;
+                    await Task.Yield();
                 }
-                else
+
+                string[] pages = url.Split('/');
+                int page = pages.Length - 1;
+
+                switch (webRequest.result)
                 {
-                    Debug.Log($"User '{username}' does not exist in the leaderboard.");
-                    return null;
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                        return null;
+                    case UnityWebRequest.Result.ProtocolError:
+                        Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                        return null;
+                    case UnityWebRequest.Result.Success:
+                        Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                        break;
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"An error occurred: {ex.Message}");
-                return null;
+
+                JObject jObject = JObject.Parse(webRequest.downloadHandler.text);
+
+                return jObject;
             }
         }
 
-        public async Task<List<BsonDocument>> GetLeaderboardDatasNOSQL()
+        public async Task<JArray> GetLeaderboardDatasNOSQL()
         {
-            var collection = database.GetCollection<BsonDocument>("Leaderboard");
-            int limit = 10;
+            string url = "https://weesek.ddns.net/MongoDB/api/users/leaderboard/get";
 
-            try
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
-                var sort = Builders<BsonDocument>.Sort.Descending("score");
-                var topScores = await collection
-                    .Find(new BsonDocument())
-                    .Sort(sort)
-                    .Limit(limit)
-                    .ToListAsync();
-                return topScores;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error fetching top scores: {ex.Message}");
-                return null;
+                var operation = webRequest.SendWebRequest();
+
+                while (!operation.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                string[] pages = url.Split('/');
+                int page = pages.Length - 1;
+
+                switch (webRequest.result)
+                {
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                        return null;
+                    case UnityWebRequest.Result.ProtocolError:
+                        Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                        return null;
+                    case UnityWebRequest.Result.Success:
+                        Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                        break;
+                }
+
+                JArray jArray = JArray.Parse(webRequest.downloadHandler.text);
+
+                return jArray;
             }
         }
 
-        public async Task<List<BsonDocument>> GetMonthlyLeaderboardDatasNOSQL()
+        public async Task<JArray> GetMonthlyLeaderboardDatasNOSQL()
         {
-            var collection = database.GetCollection<BsonDocument>("Leaderboard");
-            int limit = 10;
+            string url = "https://weesek.ddns.net/MongoDB/api/users/monthlyleaderboard/get";
 
-            try
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
-                var now = DateTime.UtcNow;
-                var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                var startOfNextMonth = startOfMonth.AddMonths(1);
+                var operation = webRequest.SendWebRequest();
 
-                var filter = Builders<BsonDocument>.Filter.And(
-                    Builders<BsonDocument>.Filter.Gte("dateofscore", startOfMonth),
-                    Builders<BsonDocument>.Filter.Lt("dateofscore", startOfNextMonth)
-                );
+                while (!operation.isDone)
+                {
+                    await Task.Yield();
+                }
 
-                var sort = Builders<BsonDocument>.Sort.Descending("score");
-                var topScores = await collection
-                    .Find(filter)
-                    .Sort(sort)
-                    .Limit(limit)
-                    .ToListAsync();
+                string[] pages = url.Split('/');
+                int page = pages.Length - 1;
 
-                return topScores;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error fetching monthly top scores: {ex.Message}");
-                return null;
+                switch (webRequest.result)
+                {
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                        return null;
+                    case UnityWebRequest.Result.ProtocolError:
+                        Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                        return null;
+                    case UnityWebRequest.Result.Success:
+                        Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                        break;
+                }
+
+                JArray jArray = JArray.Parse(webRequest.downloadHandler.text);
+
+                return jArray;
             }
         }
         #endregion
@@ -541,4 +561,18 @@ namespace Database
         }
     }
     #endregion
+}
+[System.Serializable]
+public class UserData
+{
+    public string username;
+    public string password;
+}
+
+[System.Serializable]
+public class LeaderboardData
+{
+    public string username;
+    public int score;
+    public DateTime dateTime;
 }

@@ -175,29 +175,29 @@ namespace IHM
             TMP_Text scoreText = currentUserScore.transform.GetChild(1).GetComponent<TMP_Text>();
             TMP_Text dateText = currentUserScore.transform.GetChild(2).GetComponent<TMP_Text>();
 
-            usernameText.text = currentUserDatas.Contains("username") ? currentUserDatas["username"].AsString : "Unknown";
-            scoreText.text = (currentUserDatas.Contains("score") ? currentUserDatas["score"].AsInt32 : 0).ToString();
-            dateText.text = (currentUserDatas.Contains("dateofscore") ? currentUserDatas["dateofscore"].ToUniversalTime() : DateTime.MinValue).ToString().Substring(0, currentUserDatas["dateofscore"].ToString().Length - 13);
+            usernameText.text = currentUserDatas["username"].ToString();
+            scoreText.text = currentUserDatas["score"].ToString();
+            dateText.text = currentUserDatas["dateofscore"].ToString().Substring(0, currentUserDatas["dateofscore"].ToString().Length - 9);
         }
 
         public async Task RequestLeaderboardDatasNOSQL()
         {
-            var topScores = await DatabaseManager.instance.GetLeaderboardDatasNOSQL();
+            JArray leaderboard = await DatabaseManager.instance.GetLeaderboardDatasNOSQL();
 
-            foreach (var score in topScores)
+            foreach (JObject keys in leaderboard)
             {
-                leaderboardUserdata.usernames.Add(score.Contains("username") ? score["username"].AsString : "Unknown");
-                leaderboardUserdata.scores.Add(score.Contains("score") ? score["score"].AsInt32 : 0);
-                leaderboardUserdata.dates.Add(score.Contains("dateofscore") ? score["dateofscore"].ToUniversalTime() : DateTime.MinValue);
+                leaderboardUserdata.usernames.Add((string)keys.GetValue("username"));
+                leaderboardUserdata.scores.Add((int)keys.GetValue("score"));
+                leaderboardUserdata.dates.Add(Convert.ToDateTime(keys.GetValue("dateofscore")));
             }
 
-            var topMonthlyScores = await DatabaseManager.instance.GetMonthlyLeaderboardDatasNOSQL();
+            JArray monthlyLeaderboard = await DatabaseManager.instance.GetMonthlyLeaderboardDatasNOSQL();
 
-            foreach (var score in topMonthlyScores)
+            foreach (JObject keys in monthlyLeaderboard)
             {
-                leaderboardUserdata.monthlyUsernames.Add(score.Contains("username") ? score["username"].AsString : "Unknown");
-                leaderboardUserdata.monthlyScores.Add(score.Contains("score") ? score["score"].AsInt32 : 0);
-                leaderboardUserdata.monthlyDates.Add(score.Contains("dateofscore") ? score["dateofscore"].ToUniversalTime() : DateTime.MinValue);
+                leaderboardUserdata.monthlyUsernames.Add((string)keys.GetValue("username"));
+                leaderboardUserdata.monthlyScores.Add((int)keys.GetValue("score"));
+                leaderboardUserdata.monthlyDates.Add(Convert.ToDateTime(keys.GetValue("dateofscore")));
             }
 
             ShowLeaderboardDatas("Scores");
